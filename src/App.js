@@ -1,25 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import HomePage from './HomePage/HomePage';
+import NavBar from './NavBar/NavBar';
+import {Switch, Route, Redirect} from 'react-router-dom';
+import NovaVenda from './NovaVenda/NovaVenda';
+import {connect} from 'react-redux';
 
-function App() {
+const App = props => {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <NavBar />
+      <Switch>
+        <Route path="/" exact component={HomePage}/>
+        { props.user ? 
+          <Switch>
+            <Route path="/nova-venda" component={NovaVenda}/>
+          </Switch>
+        :
+        <Redirect to="/"/>
+      }
+      </Switch>
+      
     </div>
   );
 }
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    user: state.user
+  }
+}
+
+export default connect(mapStateToProps)(App);

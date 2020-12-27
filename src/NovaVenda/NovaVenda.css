@@ -1,0 +1,20 @@
+.new-sell {
+    display: flex;
+    flex-flow: column;
+    width: 50%;
+    margin: auto;
+}
+
+.new-sell .input {
+    margin: 5px 0px 5px 0px;
+}
+
+.new-sell input {
+    margin-top: 10px;
+}
+
+.new-sell .new-sell-button {
+    width: fit-content;
+    margin: auto;
+    margin-top: 20px;
+}

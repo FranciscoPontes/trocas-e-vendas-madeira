@@ -1,0 +1,23 @@
+.navbar {
+    height: 7vh;
+    background-color:darkslategray;
+    display: flex;
+    text-align: center;
+    color: white;
+}
+
+.navbar img {
+    float: left;
+}
+
+.navbar h3 {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.google-account-info {
+    position: absolute;
+    right: 5%;
+    margin-top: 7px;
+}
