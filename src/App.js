@@ -3,6 +3,7 @@ import NavBar from './NavBar/NavBar';
 import {Switch, Route, Redirect} from 'react-router-dom';
 import NovaVenda from './NovaVenda/NovaVenda';
 import {connect} from 'react-redux';
+import MySells from './MySells/MySells';
 
 const App = props => {
   return (
@@ -13,6 +14,7 @@ const App = props => {
         { props.user ? 
           <Switch>
             <Route path="/nova-venda" component={NovaVenda}/>
+            <Route path="/minhas-vendas" component={MySells}/>
           </Switch>
         :
         <Redirect to="/"/>

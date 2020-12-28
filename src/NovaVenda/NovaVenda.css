@@ -18,3 +18,19 @@
     margin: auto;
     margin-top: 20px;
 }
+
+.preview-images {
+    display: flex;
+    margin-top: 10px;
+}
+
+.images-chips {
+    display: flex;
+    flex-flow: column;
+    margin-left: 10px;
+}
+
+.images-chips .chips {
+    margin: 5px 0px 5px 0px;
+    width: fit-content;
+}

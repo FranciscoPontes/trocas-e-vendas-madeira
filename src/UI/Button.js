@@ -5,7 +5,7 @@ const CustomButton = props => (
     <Button variant="contained" 
             color={props.color} 
             className={props.className}
-            onClick={props.click ? props.click : null }>
+            onClick={props.click ? props.click : null } size="large">
                 {props.text}
     </Button>
 )
