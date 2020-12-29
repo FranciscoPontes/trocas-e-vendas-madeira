@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Button from '../UI/Button';
 import './HomePage.css';
 import {connect} from 'react-redux';
-import {tryLogin} from '../ReduxStore/reducer';
+import * as ReducerAPI from '../ReduxStore/reducer';
+import ImageCarousel from '../UI/ImageCarousel/ImageCarousel';
 
 const HomePage = props => {
 
@@ -10,17 +11,25 @@ const HomePage = props => {
         props.history.replace(path);
     }
 
+    useEffect( () => {
+        if (props.user) props.fetchData(props.user.id);
+    }, [props.user]);
+
+    const generateSells = sells => sells.map( sell => <ImageCarousel key={sell.title} title={sell.title} description={sell.description} bulkImages={sell.imagesUrl}/>)
+
     return (
         <React.Fragment>
-
-            <h4>This will be the home page, with the possibility to login or register</h4>
-            <div className="homepage-buttons">
-                { !props.user ? <Button color="primary" text="Login" className="buttons" click={props.login}/>
-                : <React.Fragment>
-                    <Button color="primary" text="Vender/Trocar" className="buttons" click={ () => redirect("/nova-venda")}/>
-                    <Button color="secondary" text="Minhas trocas/vendas" className="buttons" click={ () => redirect("/minhas-vendas")}/>
-                  </React.Fragment>
-                 }
+            <div className="homepage-content">
+                <div className="homepage-buttons">
+                    { !props.user ? <Button color="primary" text="Login" className="buttons" click={props.login}/>
+                    : <React.Fragment>
+                        <Button color="primary" text="Vender/Trocar" className="buttons" click={ () => redirect("/nova-venda")}/>
+                        <Button color="secondary" text="Minhas trocas/vendas" className="buttons" click={ () => redirect("/minhas-vendas")}/>
+                    </React.Fragment>
+                    }
+                </div>
+                {/* <h4>TODO: <ul><li>Display content to users</li><li>Search</li><li>Add contact number + email</li><li>Image zoom</li></ul></h4> */}
+                { props.otherSells ? generateSells( props.otherSells ) : null }
             </div>
         </React.Fragment>
     );
@@ -28,14 +37,16 @@ const HomePage = props => {
 
 const mapStateToProps = state => {
     return {
-        user: state.user
+        user: state.user,
+        otherSells: state.otherSells
     }
 }
 
 
 const mapDispatchToProps = dispatch => {
     return {
-        login: () => dispatch(tryLogin())
+        login: () => dispatch(ReducerAPI.tryLogin()),
+        fetchData: (uId) => dispatch(ReducerAPI.fetchOtherSells(uId))
     }
 }
 

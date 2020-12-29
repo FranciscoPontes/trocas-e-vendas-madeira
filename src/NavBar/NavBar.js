@@ -13,6 +13,8 @@ import {NavLink} from 'react-router-dom';
 const NavBar = props => {
 
     const logout = () => {
+        const confirmation = window.confirm("Continuar para logout?");
+        if ( !confirmation ) return;
         firebase.auth().signOut().then(function() {
         // Sign-out successful.
         props.logout();
@@ -28,8 +30,8 @@ const NavBar = props => {
             
             <h3>Trocas e vendas Madeira</h3>
             <div className="google-account-info">
-            { props.user ? <Chip
-                avatar={<Avatar alt={props.user.name} src={props.user.photo} />}
+            { props.user ? <Chip className="acc-chip"
+                avatar={<Avatar alt={props.user.name} src={props.user.photo} className="acc-ava"/>}
                 label={props.user.name} onDelete={logout}
             /> 
             : null}

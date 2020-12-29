@@ -5,7 +5,8 @@ import CustomButton from '../UI/Button';
 import {postData} from '../Firebase/Firebase';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import {connect} from 'react-redux';
-import Chip from '@material-ui/core/Chip';
+import * as actionTypes from '../ReduxStore/actionTypes';
+import ImagePreview from '../UI/BulkImagePreview/BulkImagePreview';
 
 const NovaVenda = props => {
     
@@ -30,7 +31,10 @@ const NovaVenda = props => {
             })
             return;
         }
-        postData(props.userId, data).then( () => props.history.replace("/"));
+        postData(props.userId, data).then( () => {
+            props.activateRefreshFlag();
+            props.history.replace("/");
+        });
     }
 
     const handleImagesChange = value => {
@@ -42,24 +46,10 @@ const NovaVenda = props => {
             images.push( value[image] );
         }
         setImages(newImageState); 
-        setCurrentImage(newImageState[0]);
         setInput({
             ...input,
-            images: images
+            images: Array.from(value)
         })
-    }
-
-    const chipForImages = () => {
-
-        return (
-            <div className="images-chips">
-                { images.map( ( value, index ) => <Chip label={index + 1} key={value} className="chips" onClick={ () => changeCurrentImage(index) }/>) }
-            </div>
-        );
-    }
-
-    const changeCurrentImage = position => {
-        setCurrentImage(images[position]);
     }
 
     return (
@@ -74,11 +64,7 @@ const NovaVenda = props => {
                 />
                 <TextField id="description" label="Descrição" variant="outlined" className="input" multiline rows={7} onChange={(event) => setInput({...input,description: event.target.value})}/>
                 <input id="images" type="file" accept="image/*" multiple onChange={(event) => handleImagesChange(event.target.files)}/>
-                { images ? 
-                    <div className="preview-images">
-                        <img src={currentImage} width="200px"/>
-                        { chipForImages() }
-                    </div> : null }
+                { images ? <ImagePreview bulkImages={images} /> : null }
                 <CustomButton color="primary" className="new-sell-button" text="Criar" click={postNewSell}/>
             </form>
         </React.Fragment>
@@ -91,4 +77,10 @@ const mapStateToProps = state =>{
     }
 }
 
-export default connect(mapStateToProps)(NovaVenda);
+const mapDispatchToProps = dispatch => {
+    return {
+        activateRefreshFlag: () => dispatch({type:actionTypes.POST_DATA_DONE})
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(NovaVenda);

@@ -1,0 +1,24 @@
+.sell-display {
+    display: flex;
+    flex-flow: column;
+    background-color: darkkhaki;
+    width: 50%;
+    margin: auto;
+    padding: 10px 0 10px 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: left;
+    border-radius: 4px;
+}
+
+.preview-images {
+    margin: auto;
+    width: fit-content;
+    margin-top: 10px;
+}
+
+.sell-display .top-row .delete-icon {
+    float: right;
+    cursor: pointer;
+}
+

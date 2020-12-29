@@ -1,0 +1,19 @@
+.preview-images {
+    display: flex;
+    margin-top: 10px;
+}
+
+.images-chips {
+    display: flex;
+    flex-flow: column;
+    margin-left: 10px;
+}
+
+.images-chips .chips, .images-chips .selected-chip{
+    margin: 5px 0px 5px 0px;
+    width: fit-content;
+}
+
+.images-chips .selected-chip {
+    background-color: #61B7FF !important;
+}

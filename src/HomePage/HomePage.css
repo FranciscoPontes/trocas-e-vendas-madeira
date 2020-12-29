@@ -1,16 +1,18 @@
+.homepage-content {
+    display: flex;
+    flex-flow: column;
+    margin: auto;
+    width: 50%;
+    margin-top: 20px;
+    align-items: center;
+}
+
 .homepage-buttons {
     display: flex;
-    justify-content: center;
-    top: 50%;
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    margin-bottom: 30px;
 }
 
 .homepage-buttons .buttons {
     margin: 3px;
 } 
-
-body {
-    text-align: center;
-}
+    
