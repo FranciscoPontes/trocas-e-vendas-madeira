@@ -1,7 +1,7 @@
 .new-sell {
     display: flex;
     flex-flow: column;
-    width: 50%;
+    width: 70%;
     margin: auto;
 }
 
@@ -17,4 +17,9 @@
     width: fit-content;
     margin: auto;
     margin-top: 20px;
+}
+
+.heading {
+    margin-top: 20px;
+    text-align: center;
 }

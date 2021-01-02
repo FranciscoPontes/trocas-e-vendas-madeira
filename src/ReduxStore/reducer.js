@@ -5,8 +5,9 @@ import * as FirebaseAPI from '../Firebase/Firebase';
 const initState = {
     user: null,
     userSells: null,
-    refreshNeeded: true,
-    otherSells: null
+    refreshNeededMySells: true,
+    otherSells: null,
+    fetchDone: true
 }
 
 export const tryLogin = () => {
@@ -48,6 +49,8 @@ export const fetchOtherSells = uId => {
     }
 }
 
+export const updateDocData = (uId, docId, data) => dispatch => FirebaseAPI.updateDocumentData(uId, docId, data).then( () => dispatch({type: actionTypes.UPDATE_DATA, data: data, key: docId}) )
+
 const reducer = (state = initState, action) => {
     switch (action.type) {
         case actionTypes.LOGIN_USER: 
@@ -64,22 +67,37 @@ const reducer = (state = initState, action) => {
             return {
                 ...state,
                 userSells: action.data,
-                refreshNeeded: false
+                fetchDone: true,
+                refreshNeededMySells: false
             };
         case actionTypes.DELETE_SELL: 
             return {
                 ...state,
                 userSells: action.data
             }
-        case actionTypes.POST_DATA_DONE: 
+        case actionTypes.START_FETCH: 
             return {
                 ...state,
-                refreshNeeded: true
+                fetchDone: false
             }
         case actionTypes.FETCH_OTHER_SELLS: 
             return {
                 ...state,
-                otherSells: action.data
+                otherSells: action.data,
+                fetchDone: true
+            }
+        case actionTypes.NEW_SELL_ADDED: 
+            return {
+                ...state,
+                refreshNeededMySells: true
+            }
+        case actionTypes.UPDATE_DATA: 
+            return {
+                ...state,
+                userSells: {
+                    ...state.userSells,
+                    [action.key]: action.data
+                }
             }
         default:
             return state;

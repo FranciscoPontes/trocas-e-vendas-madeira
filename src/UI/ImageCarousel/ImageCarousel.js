@@ -1,30 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
-import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import Collapse from '@material-ui/core/Collapse';
 import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import { red } from '@material-ui/core/colors';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import ImagePreview from '../BulkImagePreview/BulkImagePreview';
+import './ImageCarousel.css';
+import BoxList from '../BoxList/BoxList';
+import CallIcon from '@material-ui/icons/Call';
+import MailIcon from '@material-ui/icons/Mail';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import DoneOutlineIcon from '@material-ui/icons/DoneOutline';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    maxWidth: 345,
-  },
-  media: {
-    height: 0,
-    paddingTop: '56.25%', // 16:9
-  },
   expand: {
     transform: 'rotate(0deg)',
     marginLeft: 'auto',
@@ -34,41 +29,35 @@ const useStyles = makeStyles((theme) => ({
   },
   expandOpen: {
     transform: 'rotate(180deg)',
-  },
-  avatar: {
-    backgroundColor: red[500],
-  },
+  }
 }));
 
-export default function RecipeReviewCard(props) {
+const RecipeReviewCard = props => {
   const classes = useStyles();
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
+  const callIcon = () => <CallIcon />;
+  const mailIcon = () => <MailIcon />;
+
+  const call = phoneNumber => window.open("tel:" + phoneNumber);
+  const redirectMail = mail => { window.location.href = "mailto:" + mail };
+
+  const boxListItems = [{"icon": callIcon(), "text": props.phone_number, "click": call}, {"icon": mailIcon(), "text": props.email, "click": redirectMail}];
+
   return (
-    <Card className={classes.root}>
+    <Card className={props.complete === "true" ? "card complete" : "card"}>
       <CardHeader
         avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            R
-          </Avatar>
+          <Avatar aria-label="owner" src={props.photo}/>
         }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
-        }
-        title="Shrimp and Chorizo Paella"
-        subheader="September 14, 2016"
+        title={props.name}
+        subheader={props.date}
+        action={ props.canDelete && props.complete === 'false' ? <DeleteForeverIcon className="delete-icon" fontSize="large" onClick={ () => props.canDelete( props.value ) }/> : null } 
       />
-      {/* <CardMedia
-        className={classes.media}
-        image="/static/images/cards/paella.jpg"
-        title="Paella dish"
-      /> */}
       <ImagePreview bulkImages={props.bulkImages}/>
       <CardContent>
         <Typography variant="body2" color="textSecondary" component="p">
@@ -79,9 +68,16 @@ export default function RecipeReviewCard(props) {
         <IconButton aria-label="add to favorites">
           <FavoriteIcon />
         </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
+        { props.complete === 'false' && props.canDelete ? 
+          <IconButton onClick={ () => props.completeSell(props.value) }>
+            <DoneOutlineIcon/> 
+          </IconButton>
+        : props.canDelete ?
+          <Typography variant="body2" color="textSecondary" component="p">
+            {"Completo em " + props.completionDate}
+          </Typography>
+        : null
+        }
         <IconButton
           className={clsx(classes.expand, {
             [classes.expandOpen]: expanded,
@@ -93,6 +89,7 @@ export default function RecipeReviewCard(props) {
           <ExpandMoreIcon />
         </IconButton>
       </CardActions>
+      <BoxList items={boxListItems} className="boxlist"/>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography paragraph>{props.description}</Typography>
@@ -101,3 +98,5 @@ export default function RecipeReviewCard(props) {
     </Card>
   );
 }
+
+export default RecipeReviewCard;

@@ -2,7 +2,7 @@
     display: flex;
     flex-flow: column;
     margin: auto;
-    width: 50%;
+    width: 80%;
     margin-top: 20px;
     align-items: center;
 }
@@ -14,5 +14,20 @@
 
 .homepage-buttons .buttons {
     margin: 3px;
+    width: 100%;
 } 
     
+.sells-content {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.login-display {
+    display: flex;
+}
+
+.login-display img {
+    height: 60%;
+    align-self: center;
+}

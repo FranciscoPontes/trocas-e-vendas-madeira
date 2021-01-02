@@ -5,38 +5,57 @@ import './MySells.css';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import Spinner from '../UI/Spinner';
 import ImagePreview from '../UI/BulkImagePreview/BulkImagePreview';
+import ImageCarousel from '../UI/ImageCarousel/ImageCarousel';
+import TextDisplay from '../UI/TextDisplay';
 
 const MySells = props => {
 
     useEffect( () => {
         if ( !props.refreshNeeded ) return;
         props.getSellsData(props.user.id);
-    }, [])
+    }, [props.refreshNeeded])
 
-    const deleteCurrentEntry = (docId, sells, uId) => {
+    const deleteCurrentEntry = docId => {
         console.log(docId);
         const confirmation = window.confirm("Quer mesmo eliminar a referida venda/troca?");
-        if (confirmation) props.deleteSell(docId, sells, uId);
+        if (confirmation) props.deleteSell(docId, props.sells, props.user.id);
     }
 
-    const generateSellDisplays = sells => {
-        return Object.keys(sells).map( (key) => (
-            <div className="sell-display" key={key}>
-                <div className="top-row">
-                    <DeleteForeverIcon className="delete-icon" fontSize="large" onClick={() => deleteCurrentEntry(key, props.sells, props.user.id)}/>
-                    <h4>Título: {sells[key].title}</h4>
-                </div>
-                <span>Descrição: {sells[key].description}</span>
-                <ImagePreview bulkImages={sells[key].imagesUrl} />
-            </div>
-        ));
+    const updateDocData = docId => {
+        const confirmation = window.confirm("Completar troca/venda?");
+        if ( !confirmation ) return;
+        let data = {...props.sells[docId]};
+        data["complete"] = "true";
+        data["completionDate"] = new Date().toISOString().slice(0, 10);
+        return props.updateData(props.user.id, docId, data);
     }
+
+    const generateSellDisplaysv2 = sells => (
+        <div className="sells-content"> 
+            { Object.keys(sells).map( ( key, index ) => <ImageCarousel key={index + sells[key].title} 
+                                                        date={sells[key].date} title={sells[key].title} 
+                                                        description={sells[key].description} 
+                                                        bulkImages={sells[key].imagesUrl}
+                                                        photo={sells[key].profile_photo}
+                                                        name={sells[key].owner}
+                                                        phone_number={sells[key].phone_number}
+                                                        email={sells[key].email}
+                                                        canDelete={deleteCurrentEntry}
+                                                        value={key}
+                                                        complete={sells[key].complete}
+                                                        completeSell={updateDocData}
+                                                        completionDate={sells[key].completionDate}/>
+                                                        ) }
+        </div>
+    );
 
     return (
-        <div>
-            <h3>Trocas e vendas utilizador {props.user.name}</h3>
-            { !props.refreshNeeded ? generateSellDisplays(props.sells) : <Spinner />}
-            {console.log(props.refreshNeeded)}
+        <div className="my-sells">
+            <div className="heading-display">
+                { props.refreshNeeded ? <Spinner /> : null }
+                <TextDisplay text="Minhas trocas/vendas" headingType="h4"/>
+            </div>
+            {  props.sells ? generateSellDisplaysv2(props.sells) : null }
         </div>
     );
 }
@@ -45,14 +64,15 @@ const mapStateToProps = state => {
     return {
         user: state.user,
         sells: state.userSells,
-        refreshNeeded: state.refreshNeeded
+        refreshNeeded: state.refreshNeededMySells
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
         getSellsData: (userId) => dispatch(ReducerAPI.getUserSells(userId)),
-        deleteSell: (docId, sells, uId) => dispatch(ReducerAPI.deleteSell(docId,sells, uId))
+        deleteSell: (docId, sells, uId) => dispatch(ReducerAPI.deleteSell(docId,sells, uId)),
+        updateData: (userId, docId, data) => dispatch(ReducerAPI.updateDocData(userId, docId, data))
     }
 }
 

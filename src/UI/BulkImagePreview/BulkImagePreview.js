@@ -18,9 +18,9 @@ const BulkImagePreview = props => {
         return (
             <React.Fragment>
                 <div className="preview-images">
-                    <img src={currentImage} width="200px"/>
+                    <img src={currentImage} width="200px" height="200px"/>
                     <div className="images-chips">
-                        { props.bulkImages.map( ( value, index ) => <Chip label={index + 1} key={value} className={currentIndex === index ? "selected-chip" : "chips"} onClick={ () => changeCurrentImage(index) }/>) }
+                        { props.bulkImages.map( ( value, index ) => <Chip label={index + 1} key={value + index} className={currentIndex === index ? "selected-chip" : "chips"} onClick={ () => changeCurrentImage(index) }/>) }
                     </div>
                 </div>
             </React.Fragment>

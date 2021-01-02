@@ -1,0 +1,22 @@
+.card {
+    width: 300px;
+    margin: 0px 15px 15px 15px;
+}
+
+.card.complete {
+    background-color: rgb(124, 221, 124);
+}
+
+.settings-region {
+    display: flex;
+    flex-flow: column;
+}
+
+.boxlist {
+    width: 85%;
+    margin: auto;
+}
+
+.delete-icon {
+    cursor: pointer;
+}

@@ -1,16 +1,7 @@
-.sell-display {
-    display: flex;
-    flex-flow: column;
-    background-color: darkkhaki;
-    width: 50%;
+.my-sells {
+    width: 80%;
     margin: auto;
-    padding: 10px 0 10px 5px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    text-align: left;
-    border-radius: 4px;
 }
-
 .preview-images {
     margin: auto;
     width: fit-content;
@@ -22,3 +13,13 @@
     cursor: pointer;
 }
 
+.sells-content {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.heading-display {
+    text-align: center;
+    margin-top: 20px;
+}

@@ -25,11 +25,7 @@ export const logout = () => {
 
 export const getData = uId => {
     let docRef = db.collection(uId);
-    return docRef.get().then( response => {
-            return parseData( uId, response).then(response => response);
-        })
-        .catch( error => console.error(error) )
-    
+    return docRef.get().then( response => parseData( uId, response).then(response => response).catch( error => console.error(error) ) ).catch(error => console.error( error ) )
 }
 
 const parseData = ( uId, response ) => {
@@ -38,21 +34,20 @@ const parseData = ( uId, response ) => {
         response.docs.reduce( async (acc, doc) => {
             await doc;
             let currentData = doc.data();
+            currentData["docId"] = doc.id;
             return getBulkImageUrl( uId, currentData.images).then( response => {
                 currentData["imagesUrl"] = response;
                 data[doc.id] = currentData;
-            } );    
+            } ).catch(error => console.error( error ) );    
             }, Promise.resolve()
         );
-    return promiseForEach.then( () => data );
+    return promiseForEach.then( () => data ).catch(error => console.error( error ) );
 }
 
 const getBulkImageUrl = (uId, images) => {
-    const promiseMap = Promise.all(images.map(async image => {
-            return getImageUrl(uId, image ).then( response => response)
-        }));
+    const promiseMap = Promise.all(images.map(async image =>  getImageUrl(uId, image ).then( response => response).catch(error => console.error( error ) )));
 
-    return promiseMap.then(response => response);    
+    return promiseMap.then(response => response).catch(error => console.error( error ) );    
 }
 
 const getImageUrl = ( uId, imageName ) => {
@@ -60,7 +55,7 @@ const getImageUrl = ( uId, imageName ) => {
         
     let completeRef = storageRef.child('images/' + uId + '/' + imageName);
 
-    return completeRef.getDownloadURL().then( response => response );
+    return completeRef.getDownloadURL().then( response => response ).catch(error => console.error( error ) );
 }
 
 
@@ -71,7 +66,6 @@ export const postData = (uId, data) => {
         if (!response) addCollection(uId);
         return db.collection(uId).add(copiedData)
         .then(function(docRef) {
-            console.log("Document written with ID: ", docRef.id);
             return postImages( uId, data["images"] ).then( () => null);
         })
         .catch(function(error) {
@@ -88,8 +82,8 @@ const needToAddCollection = uId => db.collection("list-collections").get().then(
         return null;
     }, Promise.resolve() );
     
-    return worker.then( () => result);
-});
+    return worker.then( () => result).catch(error => console.error( error ) );
+}).catch( error => console.error( error ) );
 
 const addCollection = uId => db.collection("list-collections").doc(uId).set({});
 
@@ -102,15 +96,21 @@ const postImages = ( uId, images ) => {
 
         let file = image;
         return completeRef.put(file).then(function(snapshot) {
-        console.log('Uploaded a blob or file!');
-        });
+        }).catch(error => console.error( error ) );
 
     } ));
 
     return imagePost.then( () => {
         alert("Nova troca/venda criada!");
-    });
+    }).catch(error => console.error( error ) );
 }
+
+export const updateDocumentData = (uId, docId, data) => {
+    const dbRef = db.collection(uId).doc(docId);
+
+    return dbRef.update(data).then( response => response).catch( error => console.error( error ) );
+}
+
 
 export const login = () => {
     var userData;
@@ -133,10 +133,12 @@ export const login = () => {
     var token = result.credential.accessToken;
     // The signed-in user info.
     var user = result.user;
+
     userData = {
         name: user.displayName,
         photo: user.photoURL,
-        id: user.uid 
+        id: user.uid,
+        email: user.email
     }
     
     db = firebase.firestore();
@@ -165,30 +167,39 @@ export const deleteData = ( uId, docId ) => {
     });
 }
 
-export const fetchAllData = uId => {
+export const fetchAllData = async uId => {
     let result = [];
-    const worker = db.collection("list-collections").get().then( response => {
-        return response.docs.reduce( async (cb, collection) => {
+    const allUserCollections = await getCollectionDocuments("list-collections").then( response => response ).catch(error => console.error( error ) );
+
+    await allUserCollections.docs.reduce( async (cb, collection) => {
+            await cb;
+
             const currentUId = collection.id;
-            return db.collection(currentUId).get().then ( response => {
-                return response.docs.reduce( async (cb, doc) => {
+
+            const docAllData = await getCollectionDocuments( currentUId ).then( response => response ).catch(error => console.error( error ) );
+
+            await docAllData.docs.reduce( async (cb, doc) => {
                     await cb;
+                    
                     let imagesUrl = [];
-                    let docData = doc.data();
+                    let docData =  doc.data();
+                    docData["docId"] = doc.id;
                     await docData.images.reduce( async (cb, img) => {
                         await cb;
                         return getImageUrl( currentUId, img).then( response => {
                             imagesUrl.push(response);
-                        });
+                        }).catch( error => console.error(error) );
+
                     }, Promise.resolve() );
 
                     docData["imagesUrl"] = imagesUrl;
                     result.push(docData);
-                    console.log(result);
-                }, Promise.resolve());
-            });
-        }, Promise.resolve());
-    });
 
-    return worker.then( () => result );
+            }, Promise.resolve() );
+            
+    }, Promise.resolve() );
+
+    return Promise.resolve(result);
 }
+
+const getCollectionDocuments = collectionId => db.collection(collectionId).get().then( response => response).catch(error => console.error( error ) );

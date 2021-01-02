@@ -27,8 +27,16 @@
 }
 
 @media (max-width: 580px) {
-    .google-account-info .acc-chip span, .google-account-info .acc-ava{
+    .google-account-info .acc-chip span {
         display: none;
         visibility: hidden;
+    }
+
+    .google-account-info .acc-chip {
+        width: 60px;
+    }
+
+    .google-account-info .acc-ava {
+        margin-right: 10px !important;
     }
 }
