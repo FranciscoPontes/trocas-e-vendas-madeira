@@ -5,10 +5,10 @@ import * as FirebaseAPI from '../Firebase/Firebase';
 const initState = {
     user: null,
     userSells: null,
-    refreshNeededMySells: true,
     otherSells: null,
     fetchDone: true,
-    userLikes: null
+    userLikes: null,
+    uploadDone: true
 }
 
 export const tryLogin = () => {
@@ -21,21 +21,15 @@ export const tryLogin = () => {
         } 
 }
 
-export const getUserSells = uId => {
-    return dispatch => { 
-        FirebaseAPI.getData(uId).then( response => {
-                return dispatch({type: actionTypes.GET_USER_SELLS, data: response});
-            })
-            .catch( error => {
-                console.error(error);
-            })
-    } 
+export const getUserSells =  uId => async dispatch => { 
+        await FirebaseAPI.fetchUserData(uId)
+            .then( response => dispatch({type: actionTypes.GET_USER_SELLS, data: response} ) )
+            .catch( error => console.error(error) );
 }
 
 export const deleteSell = ( docId, sells, uId ) => {
-    console.log(docId);
     return dispatch => {
-            FirebaseAPI.deleteData( uId, docId ).then( () => {
+            FirebaseAPI.deleteDocument( uId, docId ).then( () => {
             let currentData = {...sells};
             delete currentData[docId];
             return dispatch({type: actionTypes.DELETE_SELL, data: currentData})
@@ -55,13 +49,19 @@ export const updateDocData = (uId, docId, data) => dispatch => FirebaseAPI.updat
 export const updateLikeCount = (uId, docId, data, likeList) => {
     return async dispatch => {
         // update doc like count
-        await FirebaseAPI.updateDocumentData(uId, docId, data).then( () => dispatch({type: actionTypes.UPDATE_DOC_LIKES, data: data, key: docId}) ).catch( error => console.error( error ) );
+        await FirebaseAPI.updateDocumentData(docId, data).then( () => dispatch({type: actionTypes.UPDATE_DOC_LIKES, data: data, key: docId}) ).catch( error => console.error( error ) );
         // update user like list
-        await FirebaseAPI.addDocument(uId, "likeList", likeList).then( () => dispatch({type: actionTypes.UPDATE_USER_LIKES, data: likeList}) ).catch( error => console.error( error ) );
+        await FirebaseAPI.addDocument("user_data", uId, likeList).then( () => dispatch({type: actionTypes.UPDATE_USER_LIKES, data: likeList}) ).catch( error => console.error( error ) );
     }
 }
 
-export const getUserLikeList = uId => dispatch => FirebaseAPI.getDocument( uId, "likeList" ).then( response => dispatch({type: actionTypes.FETCH_USER_LIKE_LIST, data: response.data() }) ).catch( error => console.error( error) );
+export const getUserLikeList = uId => dispatch => FirebaseAPI.getUserData( uId ).then( response => dispatch({type: actionTypes.FETCH_USER_LIKE_LIST, data: response.data() }) ).catch( error => console.error( error) );
+
+export const uploadNewSell = data => async dispatch => {
+    dispatch({type: actionTypes.NEW_UPLOAD_STARTED });
+    await FirebaseAPI.postData( data ).then().catch( error => console.error( error) );
+    dispatch({type: actionTypes.NEW_UPLOAD_FINISHED });
+}
 
 const reducer = (state = initState, action) => {
     switch (action.type) {
@@ -79,8 +79,7 @@ const reducer = (state = initState, action) => {
             return {
                 ...state,
                 userSells: action.data,
-                fetchDone: true,
-                refreshNeededMySells: false
+                fetchDone: true
             };
         case actionTypes.DELETE_SELL: 
             return {
@@ -97,11 +96,6 @@ const reducer = (state = initState, action) => {
                 ...state,
                 otherSells: action.data,
                 fetchDone: true
-            }
-        case actionTypes.NEW_SELL_ADDED: 
-            return {
-                ...state,
-                refreshNeededMySells: true
             }
         case actionTypes.UPDATE_DATA: 
             return {
@@ -128,6 +122,16 @@ const reducer = (state = initState, action) => {
             return {
                 ...state,
                 userLikes: action.data
+            }
+        case actionTypes.NEW_UPLOAD_STARTED: 
+            return {
+                ...state,
+                uploadDone: false
+            }
+        case actionTypes.NEW_UPLOAD_FINISHED: 
+            return {
+                ...state,
+                uploadDone: true
             }
         default:
             return state;

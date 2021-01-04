@@ -1,18 +1,17 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import TextField from '@material-ui/core/TextField';
 import './NovaVenda.css';
 import CustomButton from '../UI/Button';
-import {postData} from '../Firebase/Firebase';
+import * as reducerAPI from '..//ReduxStore/reducer';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import {connect} from 'react-redux';
-import * as actionTypes from '../ReduxStore/actionTypes';
 import ImagePreview from '../UI/BulkImagePreview/BulkImagePreview';
 import Spinner from '../UI/Spinner';
 import $ from 'jquery';
 import TextDisplay from '../UI/TextDisplay';
 
 const NovaVenda = props => {
-    
+
     const [input, setInput] = useState({
                             title: "",
                             description: "",
@@ -23,32 +22,38 @@ const NovaVenda = props => {
                             date: new Date().toISOString().slice(0, 10),
                             profile_photo: props.photo,
                             owner: props.userName,
-                            complete: "false"
+                            complete: "false",
+                            likeCount: 0,
+                            userId: props.userId
                             });
     
     // images for preview
     const [images, setImages] = useState(null);                        
-    
-    // button clicked
-    const [newClicked, setNewClicked] = useState(false);
+
+    const [createButtonClicked, setCreateButtonClicked] = useState( false );
+
+    useEffect( () => {
+        if (createButtonClicked && props.uploadDone) {
+            alert("Troca/venda criada!");
+            props.history.push("/");
+        }
+    }, [createButtonClicked, props.uploadDone]);
 
     const postNewSell = () => {
         var data = input;
+        console.log("cliquei");
         if (data.price <= 0 || data.images === null) {
-            if (data.price <= 0) alert("Preço não é válido!");
-            if (data.images === null) alert("Adicione pelo menos uma imagem!");
+            if (data.price <= 0) { alert("Preço não é válido!"); return; }
+            if (data.images === null) { alert("Adicione pelo menos uma imagem!"); return; }
             setInput({
                 ...input,
                 price: 0
             })
             return;
         }
-        setNewClicked(true);
-        postData(props.userId, data).then( () => {
-            props.newSellAdded();
-            setNewClicked(false);
-            props.history.replace("/");
-        });
+        console.log(data);
+        props.uploadNewSell( data) ;
+        setCreateButtonClicked( true );
     }
 
     const handleImagesChange = ( value, targetValue ) => {
@@ -73,7 +78,7 @@ const NovaVenda = props => {
         setImages(newImageState); 
         setInput({
             ...input,
-            images: Array.from(value)
+            images: images
         });
     }
 
@@ -94,7 +99,7 @@ const NovaVenda = props => {
                 <TextField id="email" label="Email" variant="outlined" className="input" onChange={(event) => setInput({...input,email: event.target.value})} value={input.email} />
                 <input id="images" type="file" accept="image/*" multiple onChange={(event) => handleImagesChange(event.target.files, event.target.value)} />
                 { images ? <ImagePreview bulkImages={images} /> : null }
-                { newClicked ? <Spinner className="new-sell-button"/> : <CustomButton color="primary" className="new-sell-button" text="Criar" click={postNewSell}/> }
+                { !props.uploadDone ? <Spinner className="new-sell-button"/> : <CustomButton color="primary" className="new-sell-button" text="Criar" click={postNewSell}/> }
             </form>
         </React.Fragment>
     );
@@ -105,13 +110,14 @@ const mapStateToProps = state =>{
         userId: state.user.id,
         email: state.user.email,
         photo: state.user.photo,
-        userName: state.user.name
+        userName: state.user.name,
+        uploadDone: state.uploadDone
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        newSellAdded: () => dispatch({type:actionTypes.NEW_SELL_ADDED})
+        uploadNewSell: data => dispatch( reducerAPI.uploadNewSell( data ) )
     }
 }
 

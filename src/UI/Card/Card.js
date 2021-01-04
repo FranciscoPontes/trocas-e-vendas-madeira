@@ -12,7 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ImagePreview from '../BulkImagePreview/BulkImagePreview';
-import './ImageCarousel.css';
+import './Card.css';
 import BoxList from '../BoxList/BoxList';
 import CallIcon from '@material-ui/icons/Call';
 import MailIcon from '@material-ui/icons/Mail';
@@ -26,9 +26,9 @@ const useStyles = makeStyles((theme) => ({
   expand: {
     transform: 'rotate(0deg)',
     marginLeft: 'auto',
-    transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest,
-    }),
+    // transition: theme.transitions.create('transform', {
+    //   duration: theme.transitions.duration.shortest,
+    // }),
   },
   expandOpen: {
     transform: 'rotate(180deg)',
@@ -52,36 +52,53 @@ const RecipeReviewCard = props => {
   const boxListItems = [{"icon": callIcon(), "text": props.phone_number, "click": call}, {"icon": mailIcon(), "text": props.email, "click": redirectMail}];
 
   const addFav = e => {
-    let result;
-    if ( props.userLikes || props.userLikes.isNaN() ) result = JSON.parse(props.userLikes.likeList);
-    else result = [];
-    console.log(result);
+
+    let result = getParsedLikeList();
+
     const docData = { ...props.otherSells[props.value] };
 
     if ( result && !result.includes( "" + props.value + "" ) ) {
       result.push(props.value);
       $(e.target).parent().parent().parent().addClass("clicked");
       $(e.target).addClass("clicked");
-      console.log(docData.likeCount);
       docData["likeCount"] = parseInt( docData.likeCount ) + 1;
-      console.log(docData.likeCount);
-      console.log("entrei primeiro if");
     }
     else if ( result && result.includes( "" + props.value + "" ) ) {
       result.splice( result.indexOf( props.value ), 1 );
       $(e.target).removeClass("clicked");
       $(e.target).parent().removeClass("clicked");
       docData["likeCount"] = parseInt( docData.likeCount ) - 1;
-      console.log("entrei segundo if");
     }
     else result = [props.value];
 
     let likeList = {};
     likeList["likeList"] = JSON.stringify( result );
 
-    console.log(likeList);
     props.updateLikeCount( props.uId, props.value , docData , likeList);
   }
+
+  // check whether the sell has already been liked by the current user
+  const wasAlreadyLiked = () => {
+    const likeList = getParsedLikeList();
+    return ( likeList && likeList.includes( "" + props.value + "" ) );
+  }
+
+  const getParsedLikeList = () => {
+    Object.size = obj => {
+      var size = 0, key;
+      for (key in obj) {
+          if (obj.hasOwnProperty(key)) size++;
+      }
+      return size;
+    };
+
+    let result;
+    if ( Object.size(props.userLikes) > 0 ) result = JSON.parse(props.userLikes.likeList);
+    else result = [];
+    return result;
+  }
+
+  const isMySells = () => props.location === '/minhas-vendas';
 
   return (
     <Card className={props.complete === "true" ? "card complete" : "card"}>
@@ -101,7 +118,7 @@ const RecipeReviewCard = props => {
       </CardContent>
       <CardActions disableSpacing>
         <React.Fragment>
-          <IconButton aria-label="add to favorites"  onClick={(e) => addFav(e) } className="favButton">
+          <IconButton aria-label="add to favorites"  onClick={(e) => addFav(e) } className={ isMySells() ? "favButton my-own-sells" : wasAlreadyLiked() ? "favButton clicked" : "favButton"}>
             <FavoriteIcon />
           </IconButton>
           <span>{props.likeCount}</span>
@@ -128,7 +145,7 @@ const RecipeReviewCard = props => {
         </IconButton>
       </CardActions>
       <BoxList items={boxListItems} className="boxlist"/>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse in={expanded} timeout="auto">
         <CardContent>
           <Typography paragraph>{props.description}</Typography>
         </CardContent>

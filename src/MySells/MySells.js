@@ -1,19 +1,18 @@
-import React, {useState, useEffect} from 'react';
+import React, { useEffect } from 'react';
 import {connect} from 'react-redux';
 import * as ReducerAPI from '../ReduxStore/reducer';
+import * as actionTypes from '../ReduxStore/actionTypes';
 import './MySells.css';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import Spinner from '../UI/Spinner';
-import ImagePreview from '../UI/BulkImagePreview/BulkImagePreview';
-import ImageCarousel from '../UI/ImageCarousel/ImageCarousel';
+import ImageCarousel from '../UI/Card/Card';
 import TextDisplay from '../UI/TextDisplay';
 
 const MySells = props => {
 
-    useEffect( () => {
-        if ( !props.refreshNeeded ) return;
+    useEffect( async () => {
+        props.startFetch();
         props.getSellsData(props.user.id);
-    }, [props.refreshNeeded])
+    }, [] )
 
     const deleteCurrentEntry = docId => {
         console.log(docId);
@@ -44,7 +43,9 @@ const MySells = props => {
                                                         value={key}
                                                         complete={sells[key].complete}
                                                         completeSell={updateDocData}
-                                                        completionDate={sells[key].completionDate}/>
+                                                        completionDate={sells[key].completionDate}
+                                                        location={props.location.pathname}
+                                                        likeCount={sells[key].likeCount}/>
                                                         ) }
         </div>
     );
@@ -52,7 +53,7 @@ const MySells = props => {
     return (
         <div className="my-sells">
             <div className="heading-display">
-                { props.refreshNeeded ? <Spinner /> : null }
+                { !props.fetchDone ? <Spinner /> : null }
                 <TextDisplay text="Minhas trocas/vendas" headingType="h4"/>
             </div>
             {  props.sells ? generateSellDisplaysv2(props.sells) : null }
@@ -64,12 +65,13 @@ const mapStateToProps = state => {
     return {
         user: state.user,
         sells: state.userSells,
-        refreshNeeded: state.refreshNeededMySells
+        fetchDone: state.fetchDone
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
+        startFetch: () => dispatch({type:actionTypes.START_FETCH}),
         getSellsData: (userId) => dispatch(ReducerAPI.getUserSells(userId)),
         deleteSell: (docId, sells, uId) => dispatch(ReducerAPI.deleteSell(docId,sells, uId)),
         updateData: (userId, docId, data) => dispatch(ReducerAPI.updateDocData(userId, docId, data))

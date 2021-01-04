@@ -15,110 +15,15 @@ const firebaseConfig = {
 
 let db;
 
+const SELLS_DATA = "sells_data";
+const USER_DATA = "user_data";
+
 export const logout = () => {
     firebase.auth().signOut().then(function() {
     // Sign-out successful.
     }).catch(function(error) {
         // An error happened.
     });
-}
-
-export const getData = uId => {
-    let docRef = db.collection(uId);
-    return docRef.get().then( response => parseData( uId, response).then(response => response).catch( error => console.error(error) ) ).catch(error => console.error( error ) )
-}
-
-const parseData = ( uId, response ) => {
-    let data = {};
-    const promiseForEach =
-        response.docs.reduce( async (acc, doc) => {
-            await doc;
-            let currentData = doc.data();
-            currentData["docId"] = doc.id;
-            if ( currentData["docId"] === 'likeList' ) return;
-            return getBulkImageUrl( uId, currentData.images).then( response => {
-                currentData["imagesUrl"] = response;
-                data[doc.id] = currentData;
-            } ).catch(error => console.error( error ) );    
-            }, Promise.resolve()
-        );
-    return promiseForEach.then( () => data ).catch(error => console.error( error ) );
-}
-
-const getBulkImageUrl = (uId, images) => {
-    const promiseMap = Promise.all(images.map(async image =>  getImageUrl(uId, image ).then( response => response).catch(error => console.error( error ) )));
-
-    return promiseMap.then(response => response).catch(error => console.error( error ) );    
-}
-
-const getImageUrl = ( uId, imageName ) => {
-    let storageRef = firebase.storage().ref();
-        
-    let completeRef = storageRef.child('images/' + uId + '/' + imageName);
-
-    return completeRef.getDownloadURL().then( response => response ).catch(error => console.error( error ) );
-}
-
-
-export const postData = (uId, data) => {
-    let copiedData = {...data};
-    copiedData["images"] = copiedData["images"].map( image => image.name );
-    return needToAddCollection(uId).then( response => {
-        if (!response) addCollection(uId);
-        return db.collection(uId).add(copiedData)
-        .then(function(docRef) {
-            return postImages( uId, data["images"] ).then( () => null);
-        })
-        .catch(function(error) {
-            console.error("Error adding document: ", error);
-        });
-    });
-}
-
-const needToAddCollection = uId => db.collection("list-collections").get().then(response => {
-    let result = false;
-    const worker = response.docs.reduce(async ( cb, value) => { 
-        await cb;
-        if ( value.id === uId) result = true;
-        return null;
-    }, Promise.resolve() );
-    
-    return worker.then( () => result).catch(error => console.error( error ) );
-}).catch( error => console.error( error ) );
-
-const addCollection = uId => db.collection("list-collections").doc(uId).set({});
-
-const postImages = ( uId, images ) => {
-    const imagePost = Promise.all(images.map(async image => {
-        // Create a root reference
-        let storageRef = firebase.storage().ref();
-
-        let completeRef = storageRef.child('images/' + uId + '/' + image.name);
-
-        let file = image;
-        return completeRef.put(file).then(function(snapshot) {
-        }).catch(error => console.error( error ) );
-
-    } ));
-
-    return imagePost.then( () => {
-        alert("Nova troca/venda criada!");
-    }).catch(error => console.error( error ) );
-}
-
-export const updateDocumentData = (uId, docId, data) => {
-    const dbRef = db.collection(uId).doc(docId);
-    return dbRef.update(data).then( response => response).catch( error => console.error( error ) );
-}
-
-export const addDocument = (uId, docId, data) => {
-    const dbRef = db.collection(uId).doc(docId);
-    return dbRef.set(data).then( response => response).catch( error => console.error( error ) );
-}
-
-export const getDocument = (uId, docId) => {
-    const dbRef = db.collection(uId).doc(docId);
-    return dbRef.get().then( response => response).catch( error => console.error( error ) );
 }
 
 export const login = () => {
@@ -168,7 +73,30 @@ export const login = () => {
     });
 }
 
-export const deleteData = ( uId, docId ) => {
+export const updateDocumentData = (docId, data) => {
+    const dbRef = db.collection(SELLS_DATA).doc(docId);
+    return dbRef.update(data).then( response => response).catch( error => console.error( error ) );
+}
+
+export const addDocument = (collectionId, docId = null, data) => {
+    const dbRef = docId ? db.collection(collectionId).doc(docId) : db.collection(collectionId).doc();
+    if ( collectionId === SELLS_DATA ) data["docId"] = dbRef.id;
+    return dbRef.set(data).then().catch( error => console.error( error ) );
+}
+
+// getting data
+export const getUserData = userId => db.collection(USER_DATA).doc(userId).get().then().catch( error => console.error( error ) );
+
+const getDocumentsOrdered = () => db.collection(SELLS_DATA).orderBy("likeCount", "desc").limit(5).get().then( response => response).catch(error => console.error( error ) );
+
+// check algolia
+// https://codesandbox.io/embed/github/algolia/doc-code-samples/tree/master/React+InstantSearch/getting-started
+// https://www.algolia.com/doc/guides/building-search-ui/what-is-instantsearch/react/
+const getDocumentsFilteredOrdered = filter => db.collection(SELLS_DATA).where(filter.row, filter.comparator, filter.givenFilter).orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
+const getDocumentsFilteredOrdered2 = filter => db.collection(SELLS_DATA).where(filter.row, filter.comparator, filter.givenFilter).orderBy(filter.row,"asc").orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
+// getting data
+
+export const deleteDocument = ( uId, docId ) => {
     return db.collection(uId).doc(docId).delete().then(function() {
         console.log("Document successfully deleted!");
     }).catch(function(error) {
@@ -176,44 +104,62 @@ export const deleteData = ( uId, docId ) => {
     });
 }
 
-export const fetchAllData = async uId => {
-    let result = {};
-    const allUserCollections = await getCollectionDocuments("list-collections").then( response => response ).catch(error => console.error( error ) );
+const getImageUrl = ( uId, imageName ) => {
+    let storageRef = firebase.storage().ref();
+        
+    let completeRef = storageRef.child('images/' + uId + '/' + imageName);
 
-    await allUserCollections.docs.reduce( async (cb, collection) => {
-            await cb;
-
-            const currentUId = collection.id;
-
-            const docAllData = await getCollectionDocuments( currentUId ).then( response => response ).catch(error => console.error( error ) );
-
-            await docAllData.docs.reduce( async (cb, doc) => {
-                    await cb;
-                    
-                    
-                    let imagesUrl = [];
-                    let docData =  doc.data();
-                    docData["docId"] = doc.id;
-
-                    if (docData["docId"] === 'likeList') return;
-
-                    await docData.images.reduce( async (cb, img) => {
-                        await cb;
-                        return getImageUrl( currentUId, img).then( response => {
-                            imagesUrl.push(response);
-                        }).catch( error => console.error(error) );
-
-                    }, Promise.resolve() );
-
-                    docData["imagesUrl"] = imagesUrl;
-                    docData["uId"] = currentUId;
-                    result[doc.id] = docData;
-
-            }, Promise.resolve() );
-            
-    }, Promise.resolve() );
-
-    return Promise.resolve(result);
+    return completeRef.getDownloadURL().then( response => response ).catch(error => console.error( error ) );
 }
 
-export const getCollectionDocuments = collectionId => db.collection(collectionId).get().then( response => response).catch(error => console.error( error ) );
+const postImages = async ( uId, images ) => {
+    await images.map(async image => {
+        console.log(image);
+        // Create a root reference
+        let storageRef = firebase.storage().ref();
+        let completeRef = storageRef.child('images/' + uId + '/' + image.name);
+        let file = image;
+        await completeRef.put(file).then().catch(error => console.error( error ) );
+        })
+};
+
+const getBulkImageUrl = async (uId, images) => (
+    await Promise.all(images.map(async image => await getImageUrl(uId, image )
+                                                    .then( response =>  response)
+                                                    .catch(error => console.error( error ) ) ) )
+)
+
+const addImagesToData = async ( data, uId ) => {
+    let resultingData = {};
+    await data.docs.reduce( async (acc, doc) => {
+        await acc;
+        let currentData = doc.data();
+        currentData["docId"] = doc.id;
+        await getBulkImageUrl( uId, currentData.images).then( response => currentData["imagesUrl"] = response ).catch(error => console.error( error ) );    
+        resultingData[doc.id] = currentData;
+        }, Promise.resolve()
+    );
+    return resultingData;
+}
+
+export const postData = async data => {
+    const dataCorrectImageList = {...data};
+    dataCorrectImageList["images"] = dataCorrectImageList["images"].map( img => img.name);
+    await addDocument( SELLS_DATA, null, dataCorrectImageList).then( () => console.log("Document successfully posted!")).catch(error => console.error( error ) );
+    await postImages( data.userId , data["images"] ).then( () => console.log("Images successfully posted!")).catch(error => console.error( error ) );
+}
+
+export const fetchUserData = async uId => {
+    let data = {};
+    await getDocumentsFilteredOrdered( {"row": "userId", "comparator": "==", "givenFilter": uId} )
+        .then( async fetchedData => await addImagesToData(fetchedData, uId).then( response => data = response).catch(error => console.error( error ) ))
+        .catch(error => console.error( error ) );
+    return data;
+}
+
+export const fetchAllData = async uId => {
+    let data = {};
+    await getDocumentsFilteredOrdered2( {"row": "userId", "comparator": "!=", "givenFilter": uId} ).then( async fetchedData => await addImagesToData(fetchedData, uId).then( response => data = response).catch(error => console.error( error ) ))
+                                .catch(error => console.error( error ) );
+    return data;
+}

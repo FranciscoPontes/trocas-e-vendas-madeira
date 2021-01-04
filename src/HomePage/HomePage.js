@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import Button from '../UI/Button';
 import './HomePage.css';
 import {connect} from 'react-redux';
 import * as ReducerAPI from '../ReduxStore/reducer';
-import ImageCarousel from '../UI/ImageCarousel/ImageCarousel';
+import ImageCarousel from '../UI/Card/Card';
 import Spinner from '../UI/Spinner';
 import * as actionTypes from '../ReduxStore/actionTypes';
 import TextDisplay from '../UI/TextDisplay';
@@ -33,8 +33,8 @@ const HomePage = props => {
                                                                 phone_number={sells[sell].phone_number}
                                                                 email={sells[sell].email}
                                                                 value={sell}
-                                                                uId={sells[sell].uId}
-                                                                likeCount={sells[sell].likeCount ? sells[sell].likeCount : null}/>) }
+                                                                uId={sells[sell].userId}
+                                                                likeCount={sells[sell].likeCount}/>) }
             </div>
             );
 
@@ -56,7 +56,7 @@ const HomePage = props => {
                 </div>
                 { props.otherSells && props.user ? 
                 <React.Fragment>
-                    <TextDisplay text="Top 5 mais procurados" headingType="h4"/>
+                    <TextDisplay text="Top 5 mais curtidos" headingType="h4"/>
                     { generateSells( props.otherSells ) }
                     </React.Fragment> 
                 : null }

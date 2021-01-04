@@ -32,3 +32,8 @@
     pointer-events: none;
     cursor: default;
 }
+
+.favButton.my-own-sells, .favButton.my-own-sells svg {
+    pointer-events: none;
+    cursor: default;
+} 
