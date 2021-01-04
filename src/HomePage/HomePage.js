@@ -19,18 +19,22 @@ const HomePage = props => {
         if ( !props.user ) return;
         props.initFetch();
         props.fetchData(props.user.id);
+        props.getLikeList(props.user.id);
     }, [props.user]);
 
     const generateSells = sells => (
             <div className="sells-content"> 
-                { sells.map( ( sell, index ) => <ImageCarousel key={index + sell.title} 
-                                                                date={sell.date} title={sell.title} 
-                                                                description={sell.description} 
-                                                                bulkImages={sell.imagesUrl}
-                                                                photo={sell.profile_photo}
-                                                                name={sell.owner}
-                                                                phone_number={sell.phone_number}
-                                                                email={sell.email}/>) }
+                { Object.keys(sells).map( ( sell, index ) => <ImageCarousel key={index + sells[sell].title} 
+                                                                date={sells[sell].date} title={sells[sell].title} 
+                                                                description={sells[sell].description} 
+                                                                bulkImages={sells[sell].imagesUrl}
+                                                                photo={sells[sell].profile_photo}
+                                                                name={sells[sell].owner}
+                                                                phone_number={sells[sell].phone_number}
+                                                                email={sells[sell].email}
+                                                                value={sell}
+                                                                uId={sells[sell].uId}
+                                                                likeCount={sells[sell].likeCount ? sells[sell].likeCount : null}/>) }
             </div>
             );
 
@@ -52,7 +56,7 @@ const HomePage = props => {
                 </div>
                 { props.otherSells && props.user ? 
                 <React.Fragment>
-                    <TextDisplay text="Top 5 mais procura" headingType="h4"/>
+                    <TextDisplay text="Top 5 mais procurados" headingType="h4"/>
                     { generateSells( props.otherSells ) }
                     </React.Fragment> 
                 : null }
@@ -74,7 +78,8 @@ const mapDispatchToProps = dispatch => {
     return {
         login: () => dispatch(ReducerAPI.tryLogin()),
         initFetch: () => dispatch({type: actionTypes.START_FETCH}),
-        fetchData: (uId) => dispatch(ReducerAPI.fetchOtherSells(uId))
+        fetchData: (uId) => dispatch(ReducerAPI.fetchOtherSells(uId)),
+        getLikeList: (uId) => dispatch(ReducerAPI.getUserLikeList(uId))
     }
 }
 

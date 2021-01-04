@@ -18,6 +18,9 @@ import CallIcon from '@material-ui/icons/Call';
 import MailIcon from '@material-ui/icons/Mail';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import DoneOutlineIcon from '@material-ui/icons/DoneOutline';
+import $ from 'jquery';
+import { connect } from 'react-redux';
+import * as ReducerAPI from '../../ReduxStore/reducer';
 
 const useStyles = makeStyles((theme) => ({
   expand: {
@@ -48,6 +51,38 @@ const RecipeReviewCard = props => {
 
   const boxListItems = [{"icon": callIcon(), "text": props.phone_number, "click": call}, {"icon": mailIcon(), "text": props.email, "click": redirectMail}];
 
+  const addFav = e => {
+    let result;
+    if ( props.userLikes || props.userLikes.isNaN() ) result = JSON.parse(props.userLikes.likeList);
+    else result = [];
+    console.log(result);
+    const docData = { ...props.otherSells[props.value] };
+
+    if ( result && !result.includes( "" + props.value + "" ) ) {
+      result.push(props.value);
+      $(e.target).parent().parent().parent().addClass("clicked");
+      $(e.target).addClass("clicked");
+      console.log(docData.likeCount);
+      docData["likeCount"] = parseInt( docData.likeCount ) + 1;
+      console.log(docData.likeCount);
+      console.log("entrei primeiro if");
+    }
+    else if ( result && result.includes( "" + props.value + "" ) ) {
+      result.splice( result.indexOf( props.value ), 1 );
+      $(e.target).removeClass("clicked");
+      $(e.target).parent().removeClass("clicked");
+      docData["likeCount"] = parseInt( docData.likeCount ) - 1;
+      console.log("entrei segundo if");
+    }
+    else result = [props.value];
+
+    let likeList = {};
+    likeList["likeList"] = JSON.stringify( result );
+
+    console.log(likeList);
+    props.updateLikeCount( props.uId, props.value , docData , likeList);
+  }
+
   return (
     <Card className={props.complete === "true" ? "card complete" : "card"}>
       <CardHeader
@@ -65,13 +100,16 @@ const RecipeReviewCard = props => {
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-        { props.complete === 'false' && props.canDelete ? 
-          <IconButton onClick={ () => props.completeSell(props.value) }>
-            <DoneOutlineIcon/> 
+        <React.Fragment>
+          <IconButton aria-label="add to favorites"  onClick={(e) => addFav(e) } className="favButton">
+            <FavoriteIcon />
           </IconButton>
+          <span>{props.likeCount}</span>
+        </React.Fragment>
+        { props.complete === 'false' && props.canDelete ? 
+            <IconButton onClick={ () => props.completeSell(props.value) }>
+              <DoneOutlineIcon/> 
+            </IconButton>
         : props.canDelete ?
           <Typography variant="body2" color="textSecondary" component="p">
             {"Completo em " + props.completionDate}
@@ -99,4 +137,17 @@ const RecipeReviewCard = props => {
   );
 }
 
-export default RecipeReviewCard;
+const mapStateToProps = state => {
+  return {
+    userLikes: state.userLikes,
+    otherSells: state.otherSells
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    updateLikeCount: (uId, docId, data, likeList) => dispatch( ReducerAPI.updateLikeCount(uId, docId, data, likeList) )
+  }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(RecipeReviewCard);

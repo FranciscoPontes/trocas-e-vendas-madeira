@@ -20,3 +20,15 @@
 .delete-icon {
     cursor: pointer;
 }
+
+.favButton svg{
+    fill: currentColor;
+    pointer-events: all;
+    cursor: pointer;
+}
+
+.favButton.clicked svg {
+    fill: red;
+    pointer-events: none;
+    cursor: default;
+}

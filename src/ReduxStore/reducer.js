@@ -7,7 +7,8 @@ const initState = {
     userSells: null,
     refreshNeededMySells: true,
     otherSells: null,
-    fetchDone: true
+    fetchDone: true,
+    userLikes: null
 }
 
 export const tryLogin = () => {
@@ -50,6 +51,17 @@ export const fetchOtherSells = uId => {
 }
 
 export const updateDocData = (uId, docId, data) => dispatch => FirebaseAPI.updateDocumentData(uId, docId, data).then( () => dispatch({type: actionTypes.UPDATE_DATA, data: data, key: docId}) )
+
+export const updateLikeCount = (uId, docId, data, likeList) => {
+    return async dispatch => {
+        // update doc like count
+        await FirebaseAPI.updateDocumentData(uId, docId, data).then( () => dispatch({type: actionTypes.UPDATE_DOC_LIKES, data: data, key: docId}) ).catch( error => console.error( error ) );
+        // update user like list
+        await FirebaseAPI.addDocument(uId, "likeList", likeList).then( () => dispatch({type: actionTypes.UPDATE_USER_LIKES, data: likeList}) ).catch( error => console.error( error ) );
+    }
+}
+
+export const getUserLikeList = uId => dispatch => FirebaseAPI.getDocument( uId, "likeList" ).then( response => dispatch({type: actionTypes.FETCH_USER_LIKE_LIST, data: response.data() }) ).catch( error => console.error( error) );
 
 const reducer = (state = initState, action) => {
     switch (action.type) {
@@ -98,6 +110,24 @@ const reducer = (state = initState, action) => {
                     ...state.userSells,
                     [action.key]: action.data
                 }
+            }
+        case actionTypes.UPDATE_DOC_LIKES: 
+            return {
+                ...state,
+                otherSells: {
+                    ...state.otherSells,
+                    [action.key]: action.data
+                }
+            }
+        case actionTypes.UPDATE_USER_LIKES: 
+            return {
+                ...state,
+                userLikes: action.data
+            }
+        case actionTypes.FETCH_USER_LIKE_LIST: 
+            return {
+                ...state,
+                userLikes: action.data
             }
         default:
             return state;

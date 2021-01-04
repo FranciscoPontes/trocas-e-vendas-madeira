@@ -35,6 +35,7 @@ const parseData = ( uId, response ) => {
             await doc;
             let currentData = doc.data();
             currentData["docId"] = doc.id;
+            if ( currentData["docId"] === 'likeList' ) return;
             return getBulkImageUrl( uId, currentData.images).then( response => {
                 currentData["imagesUrl"] = response;
                 data[doc.id] = currentData;
@@ -107,10 +108,18 @@ const postImages = ( uId, images ) => {
 
 export const updateDocumentData = (uId, docId, data) => {
     const dbRef = db.collection(uId).doc(docId);
-
     return dbRef.update(data).then( response => response).catch( error => console.error( error ) );
 }
 
+export const addDocument = (uId, docId, data) => {
+    const dbRef = db.collection(uId).doc(docId);
+    return dbRef.set(data).then( response => response).catch( error => console.error( error ) );
+}
+
+export const getDocument = (uId, docId) => {
+    const dbRef = db.collection(uId).doc(docId);
+    return dbRef.get().then( response => response).catch( error => console.error( error ) );
+}
 
 export const login = () => {
     var userData;
@@ -168,7 +177,7 @@ export const deleteData = ( uId, docId ) => {
 }
 
 export const fetchAllData = async uId => {
-    let result = [];
+    let result = {};
     const allUserCollections = await getCollectionDocuments("list-collections").then( response => response ).catch(error => console.error( error ) );
 
     await allUserCollections.docs.reduce( async (cb, collection) => {
@@ -181,9 +190,13 @@ export const fetchAllData = async uId => {
             await docAllData.docs.reduce( async (cb, doc) => {
                     await cb;
                     
+                    
                     let imagesUrl = [];
                     let docData =  doc.data();
                     docData["docId"] = doc.id;
+
+                    if (docData["docId"] === 'likeList') return;
+
                     await docData.images.reduce( async (cb, img) => {
                         await cb;
                         return getImageUrl( currentUId, img).then( response => {
@@ -193,7 +206,8 @@ export const fetchAllData = async uId => {
                     }, Promise.resolve() );
 
                     docData["imagesUrl"] = imagesUrl;
-                    result.push(docData);
+                    docData["uId"] = currentUId;
+                    result[doc.id] = docData;
 
             }, Promise.resolve() );
             
@@ -202,4 +216,4 @@ export const fetchAllData = async uId => {
     return Promise.resolve(result);
 }
 
-const getCollectionDocuments = collectionId => db.collection(collectionId).get().then( response => response).catch(error => console.error( error ) );
+export const getCollectionDocuments = collectionId => db.collection(collectionId).get().then( response => response).catch(error => console.error( error ) );
