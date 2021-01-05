@@ -44,7 +44,7 @@ export const fetchOtherSells = ( uId, docIds ) => {
     }
 }
 
-export const updateDocData = (uId, docId, data) => dispatch => FirebaseAPI.updateDocumentData(uId, docId, data).then( () => dispatch({type: actionTypes.UPDATE_DATA, data: data, key: docId}) )
+export const updateDocData = ( docId, data ) => dispatch => FirebaseAPI.updateDocumentData( docId, data ).then( () => dispatch({type: actionTypes.UPDATE_DATA, data: data, key: docId}) )
 
 export const updateLikeCount = (uId, docId, data, likeList) => {
     return async dispatch => {

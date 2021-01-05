@@ -1,5 +1,5 @@
 import algoliasearch from 'algoliasearch/lite';
-import React, { Component } from 'react';
+import React from 'react';
 import {
   InstantSearch,
   Hits,
@@ -11,7 +11,6 @@ import {
   Configure,
 } from 'react-instantsearch-dom';
 import PropTypes from 'prop-types';
-import './App.css';
 
 const searchClient = algoliasearch(
   'BUC2AFISV8',

@@ -41,7 +41,6 @@ const NovaVenda = props => {
 
     const postNewSell = () => {
         var data = input;
-        console.log("cliquei");
         if (data.price <= 0 || data.images === null) {
             if (data.price <= 0) { alert("Preço não é válido!"); return; }
             if (data.images === null) { alert("Adicione pelo menos uma imagem!"); return; }
@@ -51,7 +50,6 @@ const NovaVenda = props => {
             })
             return;
         }
-        console.log(data);
         props.uploadNewSell( data) ;
         setCreateButtonClicked( true );
     }

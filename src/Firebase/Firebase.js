@@ -2,6 +2,7 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 import 'firebase/storage';
+import * as AlgoliaAPI from '../Algolia/Algolia';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -75,13 +76,15 @@ export const login = () => {
 
 export const updateDocumentData = (docId, data) => {
     const dbRef = db.collection(SELLS_DATA).doc(docId);
+    AlgoliaAPI.updateAlgolia( data );
     return dbRef.update(data).then( response => response).catch( error => console.error( error ) );
 }
 
-export const addDocument = (collectionId, docId = null, data) => {
+export const addDocument = async (collectionId, docId = null, data) => {
     const dbRef = docId ? db.collection(collectionId).doc(docId) : db.collection(collectionId).doc();
     if ( collectionId === SELLS_DATA ) data["docId"] = dbRef.id;
-    return dbRef.set(data).then().catch( error => console.error( error ) );
+    await dbRef.set(data).then().catch( error => console.error( error ) );
+    return data;
 }
 
 // getting data
@@ -97,6 +100,7 @@ const getDocumentsOrderedCurrentUser = filter => db.collection(SELLS_DATA).where
 export const deleteDocument = docId => {
     return db.collection(SELLS_DATA).doc(docId).delete().then(function() {
         console.log("Document successfully deleted!");
+        AlgoliaAPI.deleteAlgolia( docId );
     }).catch(function(error) {
         console.error("Error removing document: ", error);
     });
@@ -145,8 +149,14 @@ const addImagesToData = async ( data, uId = null , docIds = null ) => {
 export const postData = async data => {
     const dataCorrectImageList = {...data};
     dataCorrectImageList["images"] = dataCorrectImageList["images"].map( img => img.name);
-    await addDocument( SELLS_DATA, null, dataCorrectImageList).then( () => console.log("Document successfully posted!")).catch(error => console.error( error ) );
+    let dataForAlgolia;
+    await addDocument( SELLS_DATA, null, dataCorrectImageList).then( response => {
+        dataForAlgolia = response;
+        console.log("Document successfully posted!");
+    }).catch(error => console.error( error ) );
     await postImages( data.userId , data["images"] ).then( () => console.log("Images successfully posted!")).catch(error => console.error( error ) );
+    
+    AlgoliaAPI.postAlgolia( dataForAlgolia );
 }
 
 export const fetchUserData = async uId => {

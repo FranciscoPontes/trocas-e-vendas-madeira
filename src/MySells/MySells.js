@@ -15,7 +15,6 @@ const MySells = props => {
     }, [] )
 
     const deleteCurrentEntry = docId => {
-        console.log(docId);
         const confirmation = window.confirm("Quer mesmo eliminar a referida venda/troca?");
         if (confirmation) props.deleteSell(docId, props.sells);
     }
@@ -26,7 +25,7 @@ const MySells = props => {
         let data = {...props.sells[docId]};
         data["complete"] = "true";
         data["completionDate"] = new Date().toISOString().slice(0, 10);
-        return props.updateData(props.user.id, docId, data);
+        props.updateData( docId, data );
     }
 
     const generateSellDisplaysv2 = sells => (
@@ -63,7 +62,7 @@ const mapDispatchToProps = dispatch => {
         startFetch: () => dispatch({type:actionTypes.START_FETCH}),
         getSellsData: (userId) => dispatch(ReducerAPI.getUserSells(userId)),
         deleteSell: (docId, sells) => dispatch(ReducerAPI.deleteSell(docId, sells)),
-        updateData: (userId, docId, data) => dispatch(ReducerAPI.updateDocData(userId, docId, data))
+        updateData: ( docId, data)  => dispatch(ReducerAPI.updateDocData( docId, data ) )
     }
 }
 

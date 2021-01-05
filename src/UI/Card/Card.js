@@ -108,7 +108,7 @@ const RecipeReviewCard = props => {
         }
         title={props.docData.owner}
         subheader={props.docData.date}
-        action={ props.docData.canDelete && props.docData.complete === 'false' ? <DeleteForeverIcon className="delete-icon" fontSize="large" onClick={ () => props.canDelete( props.value ) }/> : null } 
+        action={ props.canDelete && props.docData.complete === 'false' ? <DeleteForeverIcon className="delete-icon" fontSize="large" onClick={ () => props.canDelete( props.value ) }/> : null } 
       />
       <ImagePreview bulkImages={props.docData.imagesUrl}/>
       <CardContent>
@@ -123,13 +123,13 @@ const RecipeReviewCard = props => {
           </IconButton>
           <span>{props.docData.likeCount}</span>
         </React.Fragment>
-        { props.docData.complete === 'false' && props.docData.canDelete ? 
+        { props.docData.complete === 'false' && props.canDelete ? 
             <IconButton onClick={ () => props.completeSell(props.value) }>
               <DoneOutlineIcon/> 
             </IconButton>
         : props.docData.complete === 'true' ?
           <Typography variant="body2" color="textSecondary" component="p">
-            {"Completo em " + props.completionDate}
+            <br/> <br/><br/>{"Completo em " + props.docData.completionDate}
           </Typography>
         : null
         }
