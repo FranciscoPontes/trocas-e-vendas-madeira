@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '../UI/Button';
 import './HomePage.css';
 import {connect} from 'react-redux';
@@ -8,8 +8,11 @@ import Spinner from '../UI/Spinner';
 import * as actionTypes from '../ReduxStore/actionTypes';
 import TextDisplay from '../UI/TextDisplay';
 import googleLogo from '../images/google-logo.png';
+import AddIcon from '@material-ui/icons/Add';
 
 const HomePage = props => {
+
+    const [ loadMore, setLoadMore ] = useState( false );
 
     const redirect = path => {
         props.history.replace(path);
@@ -23,19 +26,22 @@ const HomePage = props => {
     }, [props.user]);
 
     const generateSells = sells => (
-            <div className="sells-content"> 
-                { Object.keys(sells).map( ( sell, index ) => <ImageCarousel key={index + sells[sell].title} 
-                                                                date={sells[sell].date} title={sells[sell].title} 
-                                                                description={sells[sell].description} 
-                                                                bulkImages={sells[sell].imagesUrl}
-                                                                photo={sells[sell].profile_photo}
-                                                                name={sells[sell].owner}
-                                                                phone_number={sells[sell].phone_number}
-                                                                email={sells[sell].email}
-                                                                value={sell}
-                                                                uId={sells[sell].userId}
-                                                                likeCount={sells[sell].likeCount}/>) }
-            </div>
+            <React.Fragment>
+                <div className="sells-content"> 
+                    { Object.keys(sells).map( ( sell, index )  => {
+                        if ( index <= 4 ) return <ImageCarousel key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/> 
+                        }
+                    ) }
+                </div>
+                <hr className="horizontal-break" />
+                <div className="sells-content">
+                    <AddIcon onClick={setLoadMore(true)}/>
+                        {/* { loadMore ? Object.keys(sells).map( ( sell, index )  => {
+                            if ( index <= 4 ) return <ImageCarousel key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/> 
+                            }
+                        ) : null } */}
+                </div>
+            </React.Fragment>
             );
 
     return (
@@ -56,8 +62,8 @@ const HomePage = props => {
                 </div>
                 { props.otherSells && props.user ? 
                 <React.Fragment>
-                    <TextDisplay text="Top 5 mais curtidos" headingType="h4"/>
-                    { generateSells( props.otherSells ) }
+                    <TextDisplay text="Top 5 maior procura" headingType="h4"/>
+                    { props.fetchDone ? generateSells( props.otherSells ) : null }
                     </React.Fragment> 
                 : null }
             </div>

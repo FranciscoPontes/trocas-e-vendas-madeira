@@ -12,9 +12,13 @@
     flex-flow: column;
 }
 
-.boxlist {
-    width: 85%;
-    margin: auto;
+.collapse-style .MuiCardContent-root {
+    padding-top: 0px;
+}
+
+.collapse-style .MuiListItemIcon-root {
+    min-width: fit-content;
+    margin-right: 5%;
 }
 
 .delete-icon {

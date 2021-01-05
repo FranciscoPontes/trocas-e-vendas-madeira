@@ -87,17 +87,15 @@ export const addDocument = (collectionId, docId = null, data) => {
 // getting data
 export const getUserData = userId => db.collection(USER_DATA).doc(userId).get().then().catch( error => console.error( error ) );
 
-const getDocumentsOrdered = () => db.collection(SELLS_DATA).orderBy("likeCount", "desc").limit(5).get().then( response => response).catch(error => console.error( error ) );
-
 // check algolia
 // https://codesandbox.io/embed/github/algolia/doc-code-samples/tree/master/React+InstantSearch/getting-started
 // https://www.algolia.com/doc/guides/building-search-ui/what-is-instantsearch/react/
 const getDocumentsFilteredOrdered = filter => db.collection(SELLS_DATA).where(filter.row, filter.comparator, filter.givenFilter).orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
-const getDocumentsFilteredOrdered2 = filter => db.collection(SELLS_DATA).where(filter.row, filter.comparator, filter.givenFilter).orderBy(filter.row,"asc").orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
+const getTop5DocumentsOrdered = filter => db.collection(SELLS_DATA).orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
 // getting data
 
-export const deleteDocument = ( uId, docId ) => {
-    return db.collection(uId).doc(docId).delete().then(function() {
+export const deleteDocument = docId => {
+    return db.collection(SELLS_DATA).doc(docId).delete().then(function() {
         console.log("Document successfully deleted!");
     }).catch(function(error) {
         console.error("Error removing document: ", error);
@@ -114,7 +112,6 @@ const getImageUrl = ( uId, imageName ) => {
 
 const postImages = async ( uId, images ) => {
     await images.map(async image => {
-        console.log(image);
         // Create a root reference
         let storageRef = firebase.storage().ref();
         let completeRef = storageRef.child('images/' + uId + '/' + image.name);
@@ -129,13 +126,14 @@ const getBulkImageUrl = async (uId, images) => (
                                                     .catch(error => console.error( error ) ) ) )
 )
 
-const addImagesToData = async ( data, uId ) => {
+const addImagesToData = async ( data, uId = null ) => {
     let resultingData = {};
     await data.docs.reduce( async (acc, doc) => {
         await acc;
         let currentData = doc.data();
+        if ( uId === currentData.userId ) return;
         currentData["docId"] = doc.id;
-        await getBulkImageUrl( uId, currentData.images).then( response => currentData["imagesUrl"] = response ).catch(error => console.error( error ) );    
+        await getBulkImageUrl( currentData.userId, currentData.images).then( response => currentData["imagesUrl"] = response ).catch(error => console.error( error ) );    
         resultingData[doc.id] = currentData;
         }, Promise.resolve()
     );
@@ -152,14 +150,16 @@ export const postData = async data => {
 export const fetchUserData = async uId => {
     let data = {};
     await getDocumentsFilteredOrdered( {"row": "userId", "comparator": "==", "givenFilter": uId} )
-        .then( async fetchedData => await addImagesToData(fetchedData, uId).then( response => data = response).catch(error => console.error( error ) ))
+        .then( async fetchedData => await addImagesToData(fetchedData).then( response => data = response).catch(error => console.error( error ) ))
         .catch(error => console.error( error ) );
     return data;
 }
 
 export const fetchAllData = async uId => {
     let data = {};
-    await getDocumentsFilteredOrdered2( {"row": "userId", "comparator": "!=", "givenFilter": uId} ).then( async fetchedData => await addImagesToData(fetchedData, uId).then( response => data = response).catch(error => console.error( error ) ))
-                                .catch(error => console.error( error ) );
+    await getTop5DocumentsOrdered( {"row": "userId", "comparator": "!=", "givenFilter": uId} ).then( async fetchedData => {
+            await addImagesToData( fetchedData, uId ).then( response => data = response).catch(error => console.error( error ) );
+        })
+        .catch(error => console.error( error ) );
     return data;
 }

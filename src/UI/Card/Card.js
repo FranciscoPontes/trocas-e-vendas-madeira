@@ -49,7 +49,7 @@ const RecipeReviewCard = props => {
   const call = phoneNumber => window.open("tel:" + phoneNumber);
   const redirectMail = mail => { window.location.href = "mailto:" + mail };
 
-  const boxListItems = [{"icon": callIcon(), "text": props.phone_number, "click": call}, {"icon": mailIcon(), "text": props.email, "click": redirectMail}];
+  const boxListItems = [{"icon": callIcon(), "text": props.docData.phone_number, "click": call}, {"icon": mailIcon(), "text": props.docData.email, "click": redirectMail}];
 
   const addFav = e => {
 
@@ -74,7 +74,7 @@ const RecipeReviewCard = props => {
     let likeList = {};
     likeList["likeList"] = JSON.stringify( result );
 
-    props.updateLikeCount( props.uId, props.value , docData , likeList);
+    props.updateLikeCount( props.loggedUserId, props.value , docData , likeList);
   }
 
   // check whether the sell has already been liked by the current user
@@ -101,19 +101,19 @@ const RecipeReviewCard = props => {
   const isMySells = () => props.location === '/minhas-vendas';
 
   return (
-    <Card className={props.complete === "true" ? "card complete" : "card"}>
+    <Card className={props.docData.complete === "true" ? "card complete" : "card"}>
       <CardHeader
         avatar={
-          <Avatar aria-label="owner" src={props.photo}/>
+          <Avatar aria-label="owner" src={props.docData.profile_photo}/>
         }
-        title={props.name}
-        subheader={props.date}
-        action={ props.canDelete && props.complete === 'false' ? <DeleteForeverIcon className="delete-icon" fontSize="large" onClick={ () => props.canDelete( props.value ) }/> : null } 
+        title={props.docData.owner}
+        subheader={props.docData.date}
+        action={ props.docData.canDelete && props.docData.complete === 'false' ? <DeleteForeverIcon className="delete-icon" fontSize="large" onClick={ () => props.canDelete( props.value ) }/> : null } 
       />
-      <ImagePreview bulkImages={props.bulkImages}/>
+      <ImagePreview bulkImages={props.docData.imagesUrl}/>
       <CardContent>
         <Typography variant="body2" color="textSecondary" component="p">
-          {props.title}
+          <b>{props.docData.title}</b> <br/> { props.docData.price + " €"} <br/><br/>Descrição: <br/> {props.docData.description}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
@@ -121,9 +121,9 @@ const RecipeReviewCard = props => {
           <IconButton aria-label="add to favorites"  onClick={(e) => addFav(e) } className={ isMySells() ? "favButton my-own-sells" : wasAlreadyLiked() ? "favButton clicked" : "favButton"}>
             <FavoriteIcon />
           </IconButton>
-          <span>{props.likeCount}</span>
+          <span>{props.docData.likeCount}</span>
         </React.Fragment>
-        { props.complete === 'false' && props.canDelete ? 
+        { props.docData.complete === 'false' && props.docData.canDelete ? 
             <IconButton onClick={ () => props.completeSell(props.value) }>
               <DoneOutlineIcon/> 
             </IconButton>
@@ -144,10 +144,9 @@ const RecipeReviewCard = props => {
           <ExpandMoreIcon />
         </IconButton>
       </CardActions>
-      <BoxList items={boxListItems} className="boxlist"/>
-      <Collapse in={expanded} timeout="auto">
-        <CardContent>
-          <Typography paragraph>{props.description}</Typography>
+      <Collapse in={expanded} timeout="auto" className="collapse-style">
+        <CardContent >
+          <BoxList items={boxListItems} />
         </CardContent>
       </Collapse>
     </Card>
@@ -157,7 +156,8 @@ const RecipeReviewCard = props => {
 const mapStateToProps = state => {
   return {
     userLikes: state.userLikes,
-    otherSells: state.otherSells
+    otherSells: state.otherSells,
+    loggedUserId: state.user.id
   }
 }
 

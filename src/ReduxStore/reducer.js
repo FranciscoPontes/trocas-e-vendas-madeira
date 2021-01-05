@@ -27,9 +27,9 @@ export const getUserSells =  uId => async dispatch => {
             .catch( error => console.error(error) );
 }
 
-export const deleteSell = ( docId, sells, uId ) => {
+export const deleteSell = ( docId, sells ) => {
     return dispatch => {
-            FirebaseAPI.deleteDocument( uId, docId ).then( () => {
+            FirebaseAPI.deleteDocument( docId ).then( () => {
             let currentData = {...sells};
             delete currentData[docId];
             return dispatch({type: actionTypes.DELETE_SELL, data: currentData})

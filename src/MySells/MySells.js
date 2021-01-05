@@ -17,7 +17,7 @@ const MySells = props => {
     const deleteCurrentEntry = docId => {
         console.log(docId);
         const confirmation = window.confirm("Quer mesmo eliminar a referida venda/troca?");
-        if (confirmation) props.deleteSell(docId, props.sells, props.user.id);
+        if (confirmation) props.deleteSell(docId, props.sells);
     }
 
     const updateDocData = docId => {
@@ -31,21 +31,10 @@ const MySells = props => {
 
     const generateSellDisplaysv2 = sells => (
         <div className="sells-content"> 
-            { Object.keys(sells).map( ( key, index ) => <ImageCarousel key={index + sells[key].title} 
-                                                        date={sells[key].date} title={sells[key].title} 
-                                                        description={sells[key].description} 
-                                                        bulkImages={sells[key].imagesUrl}
-                                                        photo={sells[key].profile_photo}
-                                                        name={sells[key].owner}
-                                                        phone_number={sells[key].phone_number}
-                                                        email={sells[key].email}
+            { Object.keys(sells).map( key => <ImageCarousel key={sells[key].docId} docData={sells[key]} value={sells[key].docId}
                                                         canDelete={deleteCurrentEntry}
-                                                        value={key}
-                                                        complete={sells[key].complete}
                                                         completeSell={updateDocData}
-                                                        completionDate={sells[key].completionDate}
-                                                        location={props.location.pathname}
-                                                        likeCount={sells[key].likeCount}/>
+                                                        location={props.location.pathname}/>
                                                         ) }
         </div>
     );
@@ -54,9 +43,9 @@ const MySells = props => {
         <div className="my-sells">
             <div className="heading-display">
                 { !props.fetchDone ? <Spinner /> : null }
-                <TextDisplay text="Minhas trocas/vendas" headingType="h4"/>
+                <TextDisplay text="Minhas publicações" headingType="h4"/>
             </div>
-            {  props.sells ? generateSellDisplaysv2(props.sells) : null }
+            {  props.sells && props.fetchDone ? generateSellDisplaysv2(props.sells) : null }
         </div>
     );
 }
@@ -73,7 +62,7 @@ const mapDispatchToProps = dispatch => {
     return {
         startFetch: () => dispatch({type:actionTypes.START_FETCH}),
         getSellsData: (userId) => dispatch(ReducerAPI.getUserSells(userId)),
-        deleteSell: (docId, sells, uId) => dispatch(ReducerAPI.deleteSell(docId,sells, uId)),
+        deleteSell: (docId, sells) => dispatch(ReducerAPI.deleteSell(docId, sells)),
         updateData: (userId, docId, data) => dispatch(ReducerAPI.updateDocData(userId, docId, data))
     }
 }
