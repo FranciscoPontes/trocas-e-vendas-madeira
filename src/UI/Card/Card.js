@@ -127,7 +127,7 @@ const RecipeReviewCard = props => {
             <IconButton onClick={ () => props.completeSell(props.value) }>
               <DoneOutlineIcon/> 
             </IconButton>
-        : props.canDelete ?
+        : props.docData.complete === 'true' ?
           <Typography variant="body2" color="textSecondary" component="p">
             {"Completo em " + props.completionDate}
           </Typography>

@@ -90,8 +90,8 @@ export const getUserData = userId => db.collection(USER_DATA).doc(userId).get().
 // check algolia
 // https://codesandbox.io/embed/github/algolia/doc-code-samples/tree/master/React+InstantSearch/getting-started
 // https://www.algolia.com/doc/guides/building-search-ui/what-is-instantsearch/react/
-const getDocumentsFilteredOrdered = filter => db.collection(SELLS_DATA).where(filter.row, filter.comparator, filter.givenFilter).orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
-const getTop5DocumentsOrdered = filter => db.collection(SELLS_DATA).orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
+const getDocumentsOrdered = () => db.collection(SELLS_DATA).orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
+const getDocumentsOrderedCurrentUser = filter => db.collection(SELLS_DATA).where(filter.row, filter.comparator, filter.givenFilter).orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
 // getting data
 
 export const deleteDocument = docId => {
@@ -126,15 +126,17 @@ const getBulkImageUrl = async (uId, images) => (
                                                     .catch(error => console.error( error ) ) ) )
 )
 
-const addImagesToData = async ( data, uId = null ) => {
+const addImagesToData = async ( data, uId = null , docIds = null ) => {
     let resultingData = {};
+    let count = 1;
     await data.docs.reduce( async (acc, doc) => {
         await acc;
         let currentData = doc.data();
-        if ( uId === currentData.userId ) return;
+        if ( uId === currentData.userId || ( uId && (count === 6 || currentData.complete === 'true' ) ) || ( docIds && docIds.includes(doc.id) ) ) return;
         currentData["docId"] = doc.id;
         await getBulkImageUrl( currentData.userId, currentData.images).then( response => currentData["imagesUrl"] = response ).catch(error => console.error( error ) );    
         resultingData[doc.id] = currentData;
+        count++;
         }, Promise.resolve()
     );
     return resultingData;
@@ -149,16 +151,16 @@ export const postData = async data => {
 
 export const fetchUserData = async uId => {
     let data = {};
-    await getDocumentsFilteredOrdered( {"row": "userId", "comparator": "==", "givenFilter": uId} )
+    await getDocumentsOrderedCurrentUser( {"row": "userId", "comparator": "==", "givenFilter": uId} )
         .then( async fetchedData => await addImagesToData(fetchedData).then( response => data = response).catch(error => console.error( error ) ))
         .catch(error => console.error( error ) );
     return data;
 }
 
-export const fetchAllData = async uId => {
+export const fetchAllData = async ( uId, docIds = null ) => {
     let data = {};
-    await getTop5DocumentsOrdered( {"row": "userId", "comparator": "!=", "givenFilter": uId} ).then( async fetchedData => {
-            await addImagesToData( fetchedData, uId ).then( response => data = response).catch(error => console.error( error ) );
+    await getDocumentsOrdered().then( async fetchedData => {
+            await addImagesToData( fetchedData, uId , docIds).then( response => data = response).catch(error => console.error( error ) );
         })
         .catch(error => console.error( error ) );
     return data;

@@ -12,34 +12,43 @@ import AddIcon from '@material-ui/icons/Add';
 
 const HomePage = props => {
 
-    const [ loadMore, setLoadMore ] = useState( false );
-
     const redirect = path => {
         props.history.replace(path);
     }
 
+    const docIds = props.otherSells ? Object.keys(props.otherSells).map( sell => sell ) : null;
+
     useEffect( () => {
         if ( !props.user ) return;
         props.initFetch();
-        props.fetchData(props.user.id);
+        props.fetchData(props.user.id, docIds );
         props.getLikeList(props.user.id);
-    }, [props.user]);
+    }, [props.user] );
+
+    const fetchDataOnClick = () => {
+        props.initFetch();
+        props.fetchData(props.user.id, docIds );
+        props.getLikeList(props.user.id);
+    }
 
     const generateSells = sells => (
             <React.Fragment>
                 <div className="sells-content"> 
                     { Object.keys(sells).map( ( sell, index )  => {
-                        if ( index <= 4 ) return <ImageCarousel key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/> 
-                        }
-                    ) }
+                        if ( index  > 4 ) return;
+                        return <ImageCarousel key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
+                     }) }
                 </div>
                 <hr className="horizontal-break" />
+                <TextDisplay text="Mais publicações" headingType="h4" className=""/>
+                <div className="sells-content"> 
+                    { Object.keys(sells).map( ( sell, index )  => {
+                        if ( index  <= 4 ) return;
+                        return <ImageCarousel key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
+                     }) }
+                </div>
                 <div className="sells-content">
-                    <AddIcon onClick={setLoadMore(true)}/>
-                        {/* { loadMore ? Object.keys(sells).map( ( sell, index )  => {
-                            if ( index <= 4 ) return <ImageCarousel key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/> 
-                            }
-                        ) : null } */}
+                    <AddIcon onClick={ fetchDataOnClick } fontSize="large" className="load-more-icon"/>
                 </div>
             </React.Fragment>
             );
@@ -84,7 +93,7 @@ const mapDispatchToProps = dispatch => {
     return {
         login: () => dispatch(ReducerAPI.tryLogin()),
         initFetch: () => dispatch({type: actionTypes.START_FETCH}),
-        fetchData: (uId) => dispatch(ReducerAPI.fetchOtherSells(uId)),
+        fetchData: (uId, docIds) => dispatch(ReducerAPI.fetchOtherSells(uId, docIds)),
         getLikeList: (uId) => dispatch(ReducerAPI.getUserLikeList(uId))
     }
 }
