@@ -92,7 +92,7 @@ const NovaVenda = props => {
                     startAdornment: <InputAdornment position="start">€</InputAdornment>,
                     }}
                 />
-                <TextField id="description" label="Descrição" variant="outlined" className="input" multiline rows={7} onChange={(event) => setInput({...input,description: event.target.value})}/>
+                <TextField id="description" label="Descrição (opcional)" variant="outlined" className="input" multiline rows={7} onChange={(event) => setInput({...input,description: event.target.value})}/>
                 <TextField id="phone_number" label="Contacto (opcional)" variant="outlined" className="input" onChange={(event) => setInput({...input,phone_number: event.target.value})}/>
                 <TextField id="email" label="Email" variant="outlined" className="input" onChange={(event) => setInput({...input,email: event.target.value})} value={input.email} />
                 <input id="images" type="file" accept="image/*" multiple onChange={(event) => handleImagesChange(event.target.files, event.target.value)} />

@@ -106,31 +106,20 @@ export const deleteDocument = docId => {
     });
 }
 
-const getImageUrl = ( uId, imageName ) => {
-    let storageRef = firebase.storage().ref();
-        
-    let completeRef = storageRef.child('images/' + uId + '/' + imageName);
-
-    return completeRef.getDownloadURL().then( response => response ).catch(error => console.error( error ) );
-}
-
 const postImages = async ( uId, images ) => {
-    await images.map(async image => {
+    let imageUrls = [];
+    await Promise.all( images.map(async image => {
         // Create a root reference
         let storageRef = firebase.storage().ref();
         let completeRef = storageRef.child('images/' + uId + '/' + image.name);
         let file = image;
         await completeRef.put(file).then().catch(error => console.error( error ) );
-        })
+        await completeRef.getDownloadURL().then( response => imageUrls.push(response) ).catch(error => console.error( error ) );
+        }) );  
+    return imageUrls;
 };
 
-const getBulkImageUrl = async (uId, images) => (
-    await Promise.all(images.map(async image => await getImageUrl(uId, image )
-                                                    .then( response =>  response)
-                                                    .catch(error => console.error( error ) ) ) )
-)
-
-const addImagesToData = async ( data, uId = null , docIds = null ) => {
+const handleData = async ( data, uId = null , docIds = null ) => {
     let resultingData = {};
     let count = 1;
     await data.docs.reduce( async (acc, doc) => {
@@ -138,7 +127,6 @@ const addImagesToData = async ( data, uId = null , docIds = null ) => {
         let currentData = doc.data();
         if ( uId === currentData.userId || ( uId && (count === 6 || currentData.complete === 'true' ) ) || ( docIds && docIds.includes(doc.id) ) ) return;
         currentData["docId"] = doc.id;
-        await getBulkImageUrl( currentData.userId, currentData.images).then( response => currentData["imagesUrl"] = response ).catch(error => console.error( error ) );    
         resultingData[doc.id] = currentData;
         count++;
         }, Promise.resolve()
@@ -150,11 +138,16 @@ export const postData = async data => {
     const dataCorrectImageList = {...data};
     dataCorrectImageList["images"] = dataCorrectImageList["images"].map( img => img.name);
     let dataForAlgolia;
+    
+    await postImages( data.userId , data["images"] ).then( response => {
+        dataCorrectImageList["imagesUrl"] = response;
+        console.log("Images successfully posted!"); 
+    }).catch(error => console.error( error ) );
+
     await addDocument( SELLS_DATA, null, dataCorrectImageList).then( response => {
         dataForAlgolia = response;
         console.log("Document successfully posted!");
     }).catch(error => console.error( error ) );
-    await postImages( data.userId , data["images"] ).then( () => console.log("Images successfully posted!")).catch(error => console.error( error ) );
     
     AlgoliaAPI.postAlgolia( dataForAlgolia );
 }
@@ -162,7 +155,7 @@ export const postData = async data => {
 export const fetchUserData = async uId => {
     let data = {};
     await getDocumentsOrderedCurrentUser( {"row": "userId", "comparator": "==", "givenFilter": uId} )
-        .then( async fetchedData => await addImagesToData(fetchedData).then( response => data = response).catch(error => console.error( error ) ))
+        .then( async fetchedData => await handleData(fetchedData).then( response => data = response).catch(error => console.error( error ) ))
         .catch(error => console.error( error ) );
     return data;
 }
@@ -170,7 +163,7 @@ export const fetchUserData = async uId => {
 export const fetchAllData = async ( uId, docIds = null ) => {
     let data = {};
     await getDocumentsOrdered().then( async fetchedData => {
-            await addImagesToData( fetchedData, uId , docIds).then( response => data = response).catch(error => console.error( error ) );
+            await handleData( fetchedData, uId , docIds).then( response => data = response).catch(error => console.error( error ) );
         })
         .catch(error => console.error( error ) );
     return data;

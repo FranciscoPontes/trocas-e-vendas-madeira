@@ -71,7 +71,7 @@ const HomePage = props => {
                 </div>
                 { props.otherSells && props.user ? 
                 <React.Fragment>
-                    <TextDisplay text="Top 5 maior procura" headingType="h4"/>
+                    <TextDisplay text="Top 5" headingType="h4"/>
                     { props.fetchDone ? generateSells( props.otherSells ) : null }
                     </React.Fragment> 
                 : null }
