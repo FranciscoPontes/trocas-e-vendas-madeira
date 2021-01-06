@@ -66,8 +66,8 @@ const HomePage = props => {
                     </div> 
                     : <React.Fragment>
                         <div className="homepage-buttons">
-                            <Button color="primary" text="Vender/Trocar" className="buttons" click={ () => redirect("/nova-venda")}/>
-                            <Button color="secondary" text="Minhas trocas/vendas" className="buttons" click={ () => redirect("/minhas-vendas")}/>   
+                            <Button text="Vender/Trocar" className="buttons blue" click={ () => redirect("/nova-venda")}/>
+                            <Button text="Minhas trocas/vendas" className="buttons yellow" click={ () => redirect("/minhas-vendas")}/>   
                         </div>
                         <AlgoliaSearch />
                      </React.Fragment>

@@ -6,6 +6,7 @@ import './MySells.css';
 import Spinner from '../UI/Spinner';
 import ImageCarousel from '../UI/Card/Card';
 import TextDisplay from '../UI/TextDisplay';
+import Switch from '@material-ui/core/Switch';
 
 const MySells = props => {
 
@@ -43,6 +44,7 @@ const MySells = props => {
             <div className="heading-display">
                 { !props.fetchDone ? <Spinner /> : null }
                 <TextDisplay text="Minhas publicações" headingType="h4"/>
+                { ! ( props.sells && props.fetchDone ) ? <TextDisplay text="Não tem nenhuma publicação" headingType="h6"/> : null }
             </div>
             {  props.sells && props.fetchDone ? generateSellDisplaysv2(props.sells) : null }
         </div>

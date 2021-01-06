@@ -1,15 +1,25 @@
 .search-container {
-    background-color: darkslategray !important;
-    color: white;
-    width: 40% !important;
+    background-color:#f7e8ac !important;
+    color: black;
+    width: 20% !important;
+    box-shadow: inset -9px 0px 2px 0px #1e5e9b;
+    transition: width ease-in-out 0.5s;
 }
 
+.search-container svg{
+    color: #1e5e9b !important;
+} 
+
 .search-container:hover {
-    background-color: red;
+    width: 40% !important;
 }
 
 @media (max-width: 800px) {
     .search-container {
+        width: 40% !important;
+    }
+
+    .search-container:hover {
         width: 100% !important;
     }
 }

@@ -9,6 +9,9 @@ import ImagePreview from '../UI/BulkImagePreview/BulkImagePreview';
 import Spinner from '../UI/Spinner';
 import $ from 'jquery';
 import TextDisplay from '../UI/TextDisplay';
+import IconButton from '@material-ui/core/IconButton';
+import PhotoCamera from '@material-ui/icons/PhotoCamera';
+import Button from '@material-ui/core/Button';
 
 const NovaVenda = props => {
 
@@ -55,6 +58,7 @@ const NovaVenda = props => {
     }
 
     const handleImagesChange = ( value, targetValue ) => {
+        console.log(value);
         if ( value.length > 5 ) {
             targetValue = null;
             alert("Só pode adicionar no máximo 5 imagens!");
@@ -95,10 +99,24 @@ const NovaVenda = props => {
                 <TextField id="description" label="Descrição (opcional)" variant="outlined" className="input" multiline rows={7} onChange={(event) => setInput({...input,description: event.target.value})}/>
                 <TextField id="phone_number" label="Contacto (opcional)" variant="outlined" className="input" onChange={(event) => setInput({...input,phone_number: event.target.value})}/>
                 <TextField id="email" label="Email" variant="outlined" className="input" onChange={(event) => setInput({...input,email: event.target.value})} value={input.email} />
-                <input id="images" type="file" accept="image/*" multiple onChange={(event) => handleImagesChange(event.target.files, event.target.value)} />
+                
+                <input accept="image/*" id="contained-button-file" type="file" multiple onChange={(event) => handleImagesChange(event.target.files, event.target.value)} />
+                <label htmlFor="contained-button-file" className="upload-container">
+                    <Button
+                        variant="contained"
+                        className="upload-button"
+                        startIcon={<IconButton color="primary" aria-label="upload picture" component="span">
+                                        <PhotoCamera />
+                                    </IconButton>}
+                        >
+                        UPLOAD
+                    </Button>
+                </label>
+                
                 { images ? <ImagePreview bulkImages={images} /> : null }
                 { !props.uploadDone ? <Spinner className="new-sell-button"/> : <CustomButton color="primary" className="new-sell-button" text="Criar" click={postNewSell}/> }
             </form>
+
         </React.Fragment>
     );
 }        

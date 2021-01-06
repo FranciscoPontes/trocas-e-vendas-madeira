@@ -15,7 +15,24 @@
 .homepage-buttons .buttons {
     margin: 3px;
     width: 100%;
+    color: white;
 } 
+
+.buttons.blue {
+    background-color: #1e5e9b;
+}
+
+.buttons.yellow {
+    background-color: #f1c000;
+}
+
+.buttons.blue:hover {
+    background-color: #71a4d4;
+}
+
+.buttons.yellow:hover {
+    background-color: #decd8a;
+}
     
 .sells-content {
     display: flex;
@@ -39,7 +56,11 @@
 .load-more-icon {
     margin-bottom: 40px;
     cursor: pointer;
-    background-color: #3f51b5;
+    background-color: #1e5e9b;
     border-radius: 100%;
     color: white;
+}
+
+.load-more-icon:hover {
+    background-color: #71a4d4;
 }

@@ -1,18 +1,19 @@
 .navbar {
     height: 75px;
-    background-color:darkslategray;
+    background-color: #91c7fb;
     text-align: center;
-    color: white;
+    color: black;
     position: sticky;
     top: 0;
     z-index: 999;
+    box-shadow: inset 3px 10px 20px 0px white;
 }
 
 .navbar img {
     float: left;
 }
 
-.navbar h3 {
+.navbar .navbar-heading {
     position: absolute;
     margin-top: 30px;
     left: 50%;
@@ -24,6 +25,10 @@
     margin-top: 20px;
     float: right;
     margin-right: 15px;
+}
+
+.google-account-info .acc-chip {
+    background-color: #e2d8af;
 }
 
 @media (max-width: 580px) {

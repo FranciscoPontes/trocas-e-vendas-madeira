@@ -13,10 +13,42 @@
     margin-top: 10px;
 }
 
+#input-to-hide {
+    display: none;
+}
+
+.upload-container {
+    margin-top: 10px;
+    width: fit-content;
+}
+
+.upload-container .upload-button {
+    background-color: #1e5e9b;
+    color: #f2c40c;
+    padding: 2px 8px 2px 4px;
+}
+
+.upload-container .upload-button svg {
+    color: #f2c40c;
+}
+
+.upload-container .upload-button .MuiButton-startIcon {
+    margin: 0;
+}
+
+.upload-container .upload-button:hover {
+    background-color: #81a5c7;
+}
+
 .new-sell .new-sell-button {
     width: fit-content;
     margin: auto;
     margin-top: 20px;
+    background-color: #1e5e9b;
+}
+
+.new-sell .new-sell-button:hover {
+    background-color: #71a4d4;
 }
 
 .heading {

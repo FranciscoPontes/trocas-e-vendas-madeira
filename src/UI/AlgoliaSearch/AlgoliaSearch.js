@@ -102,7 +102,7 @@ const AlgoliaSearch = props => {
               <SearchIcon />
             </div>
             <InputBase
-              placeholder="Insira pelo menos 3 caracteres"
+              placeholder="Digite..."
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput,
