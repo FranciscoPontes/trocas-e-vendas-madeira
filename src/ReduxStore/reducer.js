@@ -38,9 +38,9 @@ export const deleteSell = ( docId, sells ) => {
     }
 }
 
-export const fetchOtherSells = ( uId, docIds ) => {
+export const fetchOtherSells = ( uId, limit ) => {
     return dispatch => {
-        FirebaseAPI.fetchAllData(uId, docIds).then( response => dispatch({type: actionTypes.FETCH_OTHER_SELLS, data: response}) ).catch( error => console.error(error) )
+        FirebaseAPI.fetchAllData(uId, limit).then( response => dispatch({type: actionTypes.FETCH_OTHER_SELLS, data: response}) ).catch( error => console.error(error) )
     }
 }
 
@@ -92,10 +92,9 @@ const reducer = (state = initState, action) => {
                 fetchDone: false
             }
         case actionTypes.FETCH_OTHER_SELLS:
-            const newOtherSells = Object.assign( {...state.otherSells}, action.data); 
             return {
                 ...state,
-                otherSells: newOtherSells,
+                otherSells: action.data,
                 fetchDone: true
             }
         case actionTypes.UPDATE_DATA: 

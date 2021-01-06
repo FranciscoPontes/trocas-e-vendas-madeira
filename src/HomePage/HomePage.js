@@ -16,18 +16,16 @@ const HomePage = props => {
         props.history.replace(path);
     }
 
-    const docIds = props.otherSells ? Object.keys(props.otherSells).map( sell => sell ) : null;
-
     useEffect( () => {
         if ( !props.user ) return;
         props.initFetch();
-        props.fetchData(props.user.id, docIds );
+        props.fetchData(props.user.id, true);
         props.getLikeList(props.user.id);
     }, [props.user] );
 
     const fetchDataOnClick = () => {
         props.initFetch();
-        props.fetchData(props.user.id, docIds );
+        props.fetchData(props.user.id);
         props.getLikeList(props.user.id);
     }
 
@@ -71,7 +69,7 @@ const HomePage = props => {
                 </div>
                 { props.otherSells && props.user ? 
                 <React.Fragment>
-                    <TextDisplay text="Top 5" headingType="h4"/>
+                    <TextDisplay text="Mais procurados" headingType="h4"/>
                     { props.fetchDone ? generateSells( props.otherSells ) : null }
                     </React.Fragment> 
                 : null }
@@ -93,7 +91,7 @@ const mapDispatchToProps = dispatch => {
     return {
         login: () => dispatch(ReducerAPI.tryLogin()),
         initFetch: () => dispatch({type: actionTypes.START_FETCH}),
-        fetchData: (uId, docIds) => dispatch(ReducerAPI.fetchOtherSells(uId, docIds)),
+        fetchData: (uId, limit = false) => dispatch(ReducerAPI.fetchOtherSells(uId, limit)),
         getLikeList: (uId) => dispatch(ReducerAPI.getUserLikeList(uId))
     }
 }
