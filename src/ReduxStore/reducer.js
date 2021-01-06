@@ -8,7 +8,8 @@ const initState = {
     otherSells: null,
     fetchDone: true,
     userLikes: null,
-    uploadDone: true
+    uploadDone: true,
+    searching: false
 }
 
 export const tryLogin = () => {
@@ -132,6 +133,11 @@ const reducer = (state = initState, action) => {
             return {
                 ...state,
                 uploadDone: true
+            }
+        case actionTypes.TOGGLE_SEARCH: 
+            return {
+                ...state,
+                searching: !state.searching
             }
         default:
             return state;

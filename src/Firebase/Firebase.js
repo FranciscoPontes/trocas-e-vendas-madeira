@@ -90,9 +90,6 @@ export const addDocument = async (collectionId, docId = null, data) => {
 // getting data
 export const getUserData = userId => db.collection(USER_DATA).doc(userId).get().then().catch( error => console.error( error ) );
 
-// check algolia
-// https://codesandbox.io/embed/github/algolia/doc-code-samples/tree/master/React+InstantSearch/getting-started
-// https://www.algolia.com/doc/guides/building-search-ui/what-is-instantsearch/react/
 const getDocumentsOrdered = () => db.collection(SELLS_DATA).orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
 const getDocumentsOrderedCurrentUser = filter => db.collection(SELLS_DATA).where(filter.row, filter.comparator, filter.givenFilter).orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
 // getting data
@@ -123,7 +120,7 @@ const getImageUrl = ( uId, imageName ) => {
     return completeRef.getDownloadURL().then( response => response ).catch(error => console.error( error ) );
 }
 
-const getBulkImageUrl = async (uId, images) => (
+export const getBulkImageUrl = async (uId, images) => (
     await Promise.all(images.map(async image => await getImageUrl(uId, image )
                                                     .then( response =>  response)
                                                     .catch(error => console.error( error ) ) ) )

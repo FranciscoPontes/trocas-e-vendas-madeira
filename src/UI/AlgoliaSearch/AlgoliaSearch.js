@@ -1,60 +1,136 @@
 import algoliasearch from 'algoliasearch/lite';
-import React from 'react';
-import {
-  InstantSearch,
-  Hits,
-  SearchBox,
-  Pagination,
-  Highlight,
-  ClearRefinements,
-  RefinementList,
-  Configure,
-} from 'react-instantsearch-dom';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react';
+import Card from '../Card/Card';
+import { getBulkImageUrl } from '../../Firebase/Firebase';
+import { connect } from 'react-redux';
+import * as actionTypes from '../../ReduxStore/actionTypes';
+import Spinner from '../Spinner';
+import './AlgoliaSearch.css';
+import SearchIcon from '@material-ui/icons/Search';
+import { fade, makeStyles } from '@material-ui/core/styles';
+import InputBase from '@material-ui/core/InputBase';
 
 const searchClient = algoliasearch(
   'BUC2AFISV8',
   '3347ced814c369f956cf3fa1bc564dd9'
 );
+const index = searchClient.initIndex('search-sells');
 
-const AlgoliaSearch = () => {
-    return (
-      <div className="ais-InstantSearch">
-        <h1>React InstantSearch e-commerce demo</h1>
-        <InstantSearch indexName="demo_ecommerce" searchClient={searchClient}>
-          <div className="left-panel">
-            <ClearRefinements />
-            <h2>Brands</h2>
-            <RefinementList attribute="brand" />
-            <Configure hitsPerPage={8} />
+const useStyles = makeStyles((theme) => ({
+  grow: {
+    flexGrow: 1,
+  },
+  search: {
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+    '&:hover': {
+      backgroundColor: fade(theme.palette.common.white, 0.25),
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing(3),
+      width: 'auto',
+    },
+    marginBottom: '20px'
+  },
+  searchIcon: {
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputRoot: {
+    color: 'inherit',
+    width: '100%'
+  },
+  inputInput: {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+    transition: theme.transitions.create('width'),
+    width: '100%'
+  },
+}));
+
+
+const AlgoliaSearch = props => {
+  const classes = useStyles();
+
+  const [ hits, setHits ] = useState(null);
+
+  const [ loading, setLoading ] = useState(false);
+
+  const [ search, setSearch ] = useState(null);
+
+  const fetchCompleteData = async hits => (
+    await Promise.all( hits.map( async hit => { 
+      let completeHitData = hit;
+      await getBulkImageUrl( hit.userId, hit.images ).then( response => completeHitData["imagesUrl"] = response ).catch(error => console.error( error ) );
+      return completeHitData;
+    }) )
+)
+
+  useEffect( () => {
+      if ( search && search.length >= 3 && search != '' ) {
+        if ( !props.searching ) props.toggleSearch();
+        setLoading( true );
+        index.search(search).then( ({ hits }) => fetchCompleteData( hits ).then( response => { 
+          setLoading( false );
+          setHits( response );
+        }) );
+        return;
+      }
+      setHits( null );
+      if ( props.searching ) props.toggleSearch();
+  }, [search]);
+
+  // hotfix
+  useEffect( () => {
+    if ( search === '' ) setHits( null );
+  });
+
+    return ( 
+      <React.Fragment>
+        <div className={classes.search + " search-container"}>
+            <div className={classes.searchIcon}>
+              <SearchIcon />
+            </div>
+            <InputBase
+              placeholder="Insira pelo menos 3 caracteres"
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ 'aria-label': 'search' }}
+              onChange={ e => setSearch(e.target.value) }
+            />
+        </div>
+        { loading ? <Spinner /> : null }
+        { hits ? 
+          <div className="algo-search-cards">
+            {hits.map( hit => <Card key={ hit.docId } docData={ hit }  value={ hit.docId } /> ) } 
           </div>
-          <div className="right-panel">
-            <SearchBox />
-            <Hits hitComponent={Hit} />
-            <Pagination />
-          </div>
-        </InstantSearch>
-      </div>
+          : null } 
+      </React.Fragment>
     );
 }
 
-function Hit(props) {
-  return (
-    <div>
-      <img src={props.hit.image} align="left" alt={props.hit.name} />
-      <div className="hit-name">
-        <Highlight attribute="name" hit={props.hit} />
-      </div>
-      <div className="hit-description">
-        <Highlight attribute="description" hit={props.hit} />
-      </div>
-      <div className="hit-price">${props.hit.price}</div>
-    </div>
-  );
+const mapStateToProps = state => {
+  return {
+    searching: state.searching
+  }
 }
 
-Hit.propTypes = {
-  hit: PropTypes.object.isRequired,
-};
+const mapDispatchToProps = dispatch => {
+  return {
+    toggleSearch: () => dispatch({type: actionTypes.TOGGLE_SEARCH})
+  }
+}
 
-export default AlgoliaSearch;
+export default connect(mapStateToProps,mapDispatchToProps)(AlgoliaSearch);

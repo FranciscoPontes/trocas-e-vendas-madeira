@@ -3,12 +3,13 @@ import Button from '../UI/Button';
 import './HomePage.css';
 import {connect} from 'react-redux';
 import * as ReducerAPI from '../ReduxStore/reducer';
-import ImageCarousel from '../UI/Card/Card';
+import Card from '../UI/Card/Card';
 import Spinner from '../UI/Spinner';
 import * as actionTypes from '../ReduxStore/actionTypes';
 import TextDisplay from '../UI/TextDisplay';
 import googleLogo from '../images/google-logo.png';
 import AddIcon from '@material-ui/icons/Add';
+import AlgoliaSearch from '../UI/AlgoliaSearch/AlgoliaSearch';
 
 const HomePage = props => {
 
@@ -34,7 +35,7 @@ const HomePage = props => {
                 <div className="sells-content"> 
                     { Object.keys(sells).map( ( sell, index )  => {
                         if ( index  > 4 ) return;
-                        return <ImageCarousel key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
+                        return <Card key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
                      }) }
                 </div>
                 <hr className="horizontal-break" />
@@ -42,7 +43,7 @@ const HomePage = props => {
                 <div className="sells-content"> 
                     { Object.keys(sells).map( ( sell, index )  => {
                         if ( index  <= 4 ) return;
-                        return <ImageCarousel key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
+                        return <Card key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
                      }) }
                 </div>
                 <div className="sells-content">
@@ -55,19 +56,24 @@ const HomePage = props => {
         <React.Fragment>
             <div className="homepage-content">
                 { !props.fetchDone ? <Spinner /> : null}
-                <div className="homepage-buttons">
+                
                     { !props.user ? 
+                    <div className="homepage-buttons">
                         <div className="login-display">
                             <Button color="primary" text="Login" className="buttons" click={props.login} /> 
                             <img src={googleLogo} width="25px" />
                         </div>
+                    </div> 
                     : <React.Fragment>
-                        <Button color="primary" text="Vender/Trocar" className="buttons" click={ () => redirect("/nova-venda")}/>
-                        <Button color="secondary" text="Minhas trocas/vendas" className="buttons" click={ () => redirect("/minhas-vendas")}/>
-                    </React.Fragment>
+                        <div className="homepage-buttons">
+                            <Button color="primary" text="Vender/Trocar" className="buttons" click={ () => redirect("/nova-venda")}/>
+                            <Button color="secondary" text="Minhas trocas/vendas" className="buttons" click={ () => redirect("/minhas-vendas")}/>   
+                        </div>
+                        <AlgoliaSearch />
+                     </React.Fragment>
                     }
-                </div>
-                { props.otherSells && props.user ? 
+                
+                { props.otherSells && props.user && !props.searching ? 
                 <React.Fragment>
                     <TextDisplay text="Mais procurados" headingType="h4"/>
                     { props.fetchDone ? generateSells( props.otherSells ) : null }
@@ -83,6 +89,7 @@ const mapStateToProps = state => {
         user: state.user,
         otherSells: state.otherSells,
         fetchDone: state.fetchDone,
+        searching: state.searching
     }
 }
 
