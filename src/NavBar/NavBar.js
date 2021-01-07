@@ -27,7 +27,7 @@ const NavBar = props => {
     return (
         <div className="navbar">
             <NavLink to="/"><img src={Flag} alt="madeira-flag" height="100%"/></NavLink>
-            <TextDisplay text="Trocas e vendas Madeira" headingType="h5" className="navbar-heading" />
+            <TextDisplay text="Vendas Madeira" headingType="h5" className="navbar-heading" />
             <div className="google-account-info">
             { props.user ? <Chip className="acc-chip"
                 avatar={<Avatar alt={props.user.name} src={props.user.photo} className="acc-ava"/>}

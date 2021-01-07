@@ -1,14 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {connect} from 'react-redux';
 import * as ReducerAPI from '../ReduxStore/reducer';
 import * as actionTypes from '../ReduxStore/actionTypes';
 import './MySells.css';
 import Spinner from '../UI/Spinner';
-import ImageCarousel from '../UI/Card/Card';
+import Card from '../UI/Card/Card';
 import TextDisplay from '../UI/TextDisplay';
 import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 const MySells = props => {
+
+    const [ showComplete, setShowComplete ] = useState(false);
 
     useEffect( async () => {
         props.startFetch();
@@ -31,11 +34,14 @@ const MySells = props => {
 
     const generateSellDisplaysv2 = sells => (
         <div className="sells-content"> 
-            { Object.keys(sells).map( key => <ImageCarousel key={sells[key].docId} docData={sells[key]} value={sells[key].docId}
+            { Object.keys(sells).map( key => {
+                if ( sells[key].complete === 'true' && !showComplete ) return;
+                return <Card key={sells[key].docId} docData={sells[key]} value={sells[key].docId}
                                                         canDelete={deleteCurrentEntry}
                                                         completeSell={updateDocData}
                                                         location={props.location.pathname}/>
-                                                        ) }
+                }
+            ) }
         </div>
     );
 
@@ -43,8 +49,21 @@ const MySells = props => {
         <div className="my-sells">
             <div className="heading-display">
                 { !props.fetchDone ? <Spinner /> : null }
-                <TextDisplay text="Minhas publicações" headingType="h4"/>
-                { ! ( props.sells && props.fetchDone ) ? <TextDisplay text="Não tem nenhuma publicação" headingType="h6"/> : null }
+                <div className="text-and-switch">
+                    <TextDisplay text="Minhas publicações" headingType="h4"/>
+                    <div className="toggle-complete-sells">
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                onChange={ () => setShowComplete( !showComplete ) }
+                                color="primary"
+                            />
+                        }
+                        label="Completos"
+                    />
+                    </div>
+                </div>
+                { ! ( props.sells ) ? <TextDisplay text="Não tem nenhuma publicação" headingType="h6"/> : null }
             </div>
             {  props.sells && props.fetchDone ? generateSellDisplaysv2(props.sells) : null }
         </div>

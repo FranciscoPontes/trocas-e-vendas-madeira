@@ -129,7 +129,7 @@ const RecipeReviewCard = props => {
             </IconButton>
         : props.docData.complete === 'true' ?
           <Typography variant="body2" color="textSecondary" component="p">
-            <br/> <br/><br/>{"Completo em " + props.docData.completionDate}
+            <br/> <br/><br/>{"Vendido em " + props.docData.completionDate}
           </Typography>
         : null
         }

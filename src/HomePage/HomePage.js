@@ -67,8 +67,8 @@ const HomePage = props => {
                     </div> 
                     : <React.Fragment>
                         <div className="homepage-buttons">
-                            <Button text="Vender/Trocar" className="buttons blue" click={ () => redirect("/nova-venda")}/>
-                            <Button text="Minhas trocas/vendas" className="buttons yellow" click={ () => redirect("/minhas-vendas")}/>   
+                            <Button text="Vender" className="buttons blue" click={ () => redirect("/nova-venda")}/>
+                            <Button text="Minhas vendas" className="buttons yellow" click={ () => redirect("/minhas-vendas")}/>   
                         </div>
                         <AlgoliaSearch />
                      </React.Fragment>
@@ -76,7 +76,7 @@ const HomePage = props => {
                 
                 { props.otherSells && props.user && !props.searching ? 
                 <React.Fragment>
-                    <TextDisplay text="Mais procurados" headingType="h4"/>
+                    <TextDisplay text="Publicações mais curtidas" headingType="h4"/>
                     { props.fetchDone ? generateSells( props.otherSells ) : null }
                     </React.Fragment> 
                 : null }

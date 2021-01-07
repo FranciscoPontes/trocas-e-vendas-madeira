@@ -20,6 +20,35 @@
 }
 
 .heading-display {
-    text-align: center;
     margin-top: 20px;
+    text-align: center;
+}
+
+.text-and-switch {
+    display: flex;
+    justify-content: center;
+}
+
+.toggle-complete-sells {
+    position: absolute;
+    right: 2%;
+}
+
+.MuiSwitch-switchBase.MuiSwitch-colorPrimary.Mui-checked {
+    color: #1e5e9b;
+}
+
+.toggle-complete-sells .MuiSwitch-switchBase {
+    color: #7191af;
+}
+
+@media ( max-width: 650px ) {
+    .text-and-switch {
+        flex-flow: column;
+    }
+
+    .toggle-complete-sells {
+        position: static;
+        margin: 10px 0;
+    }
 }

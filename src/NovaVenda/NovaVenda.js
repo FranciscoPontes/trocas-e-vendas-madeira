@@ -87,7 +87,7 @@ const NovaVenda = props => {
     return (
         <React.Fragment>
             <div className="heading">
-                <TextDisplay text="Nova troca/venda" headingType="h4"/>
+                <TextDisplay text="Nova venda" headingType="h4"/>
             </div>
             <form className="new-sell" noValidate autoComplete="off">
                 <TextField id="title" label="Titulo da venda" variant="outlined" className="input" onChange={(event) => setInput({...input,title: event.target.value})}/>
