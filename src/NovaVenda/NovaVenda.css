@@ -13,27 +13,33 @@
     margin-top: 10px;
 }
 
-#input-to-hide {
+#contained-button-file {
     display: none;
 }
 
 .upload-container {
     margin-top: 10px;
     width: fit-content;
+    height: 30px;
 }
 
 .upload-container .upload-button {
-    background-color: #1e5e9b;
-    color: #f2c40c;
+    background-color: #a8c0d6;
+    color: #fbfbfb;
     padding: 2px 8px 2px 4px;
+    height: inherit;
 }
 
 .upload-container .upload-button svg {
-    color: #f2c40c;
+    color: #fbfbfb;
 }
 
 .upload-container .upload-button .MuiButton-startIcon {
     margin: 0;
+}
+
+.upload-button .upload-photo-icon {
+    padding: 4px;
 }
 
 .upload-container .upload-button:hover {

@@ -18,7 +18,7 @@
     color: white;
 } 
 
-.buttons.blue {
+.buttons.blue, .buttons.login {
     background-color: #1e5e9b;
 }
 
@@ -26,7 +26,7 @@
     background-color: #f1c000;
 }
 
-.buttons.blue:hover {
+.buttons.blue:hover, .buttons.login:hover {
     background-color: #71a4d4;
 }
 
@@ -42,11 +42,11 @@
 
 .login-display {
     display: flex;
+    flex-flow: column;
 }
 
 .login-display img {
-    height: 60%;
-    align-self: center;
+    width: 100%;
 }
 
 .horizontal-break {

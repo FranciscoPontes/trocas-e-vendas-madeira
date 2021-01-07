@@ -7,9 +7,10 @@ import Card from '../UI/Card/Card';
 import Spinner from '../UI/Spinner';
 import * as actionTypes from '../ReduxStore/actionTypes';
 import TextDisplay from '../UI/TextDisplay';
-import googleLogo from '../images/google-logo.png';
+import poweredByGoogle from '../images/powered_by_google_on_white.png';
 import AddIcon from '@material-ui/icons/Add';
 import AlgoliaSearch from '../UI/AlgoliaSearch/AlgoliaSearch';
+
 
 const HomePage = props => {
 
@@ -60,8 +61,8 @@ const HomePage = props => {
                     { !props.user ? 
                     <div className="homepage-buttons">
                         <div className="login-display">
-                            <Button color="primary" text="Login" className="buttons" click={props.login} /> 
-                            <img src={googleLogo} width="25px" />
+                            <Button color="primary" text="Login" className="buttons login" click={props.login} />
+                            <img src={poweredByGoogle} width="25px" />
                         </div>
                     </div> 
                     : <React.Fragment>

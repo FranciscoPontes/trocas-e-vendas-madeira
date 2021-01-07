@@ -102,17 +102,13 @@ const NovaVenda = props => {
                 
                 <input accept="image/*" id="contained-button-file" type="file" multiple onChange={(event) => handleImagesChange(event.target.files, event.target.value)} />
                 <label htmlFor="contained-button-file" className="upload-container">
-                    <Button
-                        variant="contained"
-                        className="upload-button"
-                        startIcon={<IconButton color="primary" aria-label="upload picture" component="span">
-                                        <PhotoCamera />
-                                    </IconButton>}
-                        >
-                        UPLOAD
+                    <Button variant="contained" color="primary" component="span" className="upload-button">
+                        <IconButton color="primary" aria-label="upload picture" component="span" className="upload-photo-icon">
+                            <PhotoCamera />
+                        </IconButton>
+                        Upload
                     </Button>
                 </label>
-                
                 { images ? <ImagePreview bulkImages={images} /> : null }
                 { !props.uploadDone ? <Spinner className="new-sell-button"/> : <CustomButton color="primary" className="new-sell-button" text="Criar" click={postNewSell}/> }
             </form>
