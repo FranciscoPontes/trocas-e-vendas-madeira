@@ -58,7 +58,6 @@ const NovaVenda = props => {
     }
 
     const handleImagesChange = ( value, targetValue ) => {
-        console.log(value);
         if ( value.length > 5 ) {
             targetValue = null;
             alert("Só pode adicionar no máximo 5 imagens!");
@@ -110,7 +109,7 @@ const NovaVenda = props => {
                     </Button>
                 </label>
                 { images ? <ImagePreview bulkImages={images} /> : null }
-                { !props.uploadDone ? <Spinner className="new-sell-button"/> : <CustomButton color="primary" className="new-sell-button" text="Criar" click={postNewSell}/> }
+                { !props.uploadDone ? <Spinner className="spinner-my-sells"/> : <CustomButton color="primary" className="new-sell-button" text="Criar" click={postNewSell}/> }
             </form>
 
         </React.Fragment>
