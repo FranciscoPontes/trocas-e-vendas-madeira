@@ -45,7 +45,7 @@ export const login = () => {
     return firebase.auth().signInWithPopup(provider).then(function(result) {
 
     // This gives you a Google Access Token. You can use it to access the Google API.
-    var token = result.credential.accessToken;
+    // var token = result.credential.accessToken;
     // The signed-in user info.
     var user = result.user;
 
@@ -66,9 +66,9 @@ export const login = () => {
         var errorCode = error.code;
         var errorMessage = error.message;
         // The email of the user's account used.
-        var email = error.email;
+        // var email = error.email;
         // The firebase.auth.AuthCredential type that was used.
-        var credential = error.credential;
+        // var credential = error.credential;
         // ...
         return errorCode + errorMessage;
     });
@@ -126,13 +126,13 @@ export const getBulkImageUrl = async (uId, images) => (
                                                     .catch(error => console.error( error ) ) ) )
 )
 
-const addImagesToData = async ( data, uId = null , limit = false ) => {
+const addImagesToData = async ( data, uId = null , limit = false, likeList = null ) => {
     let resultingData = {};
     let count = 1;
     await data.docs.reduce( async (acc, doc) => {
         await acc;
         let currentData = doc.data();
-        if ( uId === currentData.userId || ( uId && ( limit && count === 6 || currentData.complete === 'true' ) ) ) return;
+        if ( uId === currentData.userId || ( uId && ( ( limit && count === 6 ) || currentData.complete === 'true' ) ) || ( likeList && !likeList["likeList"].includes( currentData.docId ) ) ) return;
         currentData["docId"] = doc.id;
         await getBulkImageUrl( currentData.userId, currentData.images).then( response => currentData["imagesUrl"] = response ).catch(error => console.error( error ) );    
         resultingData[doc.id] = currentData;
@@ -164,10 +164,10 @@ export const fetchUserData = async uId => {
     return data;
 }
 
-export const fetchAllData = async ( uId, limit ) => {
+export const fetchAllData = async ( uId, limit, likeList ) => {
     let data = {};
     await getDocumentsOrdered().then( async fetchedData => {
-            await addImagesToData( fetchedData, uId , limit).then( response => data = response).catch(error => console.error( error ) );
+            await addImagesToData( fetchedData, uId , limit, likeList).then( response => data = response).catch(error => console.error( error ) );
         })
         .catch(error => console.error( error ) );
     return data;

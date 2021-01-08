@@ -9,7 +9,8 @@ const initState = {
     fetchDone: true,
     userLikes: null,
     uploadDone: true,
-    searching: false
+    searching: false,
+    likedSells: null
 }
 
 export const tryLogin = () => {
@@ -39,9 +40,10 @@ export const deleteSell = ( docId, sells ) => {
     }
 }
 
-export const fetchOtherSells = ( uId, limit ) => {
+export const fetchOtherSells = ( uId, limit, likeList ) => {
     return dispatch => {
-        FirebaseAPI.fetchAllData(uId, limit).then( response => dispatch({type: actionTypes.FETCH_OTHER_SELLS, data: response}) ).catch( error => console.error(error) )
+        if ( !likeList ) FirebaseAPI.fetchAllData(uId, limit, likeList).then( response => dispatch({type: actionTypes.FETCH_OTHER_SELLS, data: response}) ).catch( error => console.error(error) );
+        else FirebaseAPI.fetchAllData(uId, limit, likeList).then( response => dispatch({type: actionTypes.FETCH_LIKED_SELLS, data: response}) ).catch( error => console.error(error) );
     }
 }
 
@@ -138,6 +140,12 @@ const reducer = (state = initState, action) => {
             return {
                 ...state,
                 searching: !state.searching
+            }
+        case actionTypes.FETCH_LIKED_SELLS: 
+            return {
+                ...state,
+                fetchDone: true,
+                likedSells: action.data
             }
         default:
             return state;

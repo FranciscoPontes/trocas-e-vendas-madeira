@@ -77,7 +77,7 @@ const AlgoliaSearch = props => {
 )
 
   useEffect( () => {
-      if ( search && search.length >= 3 && search != '' ) {
+      if ( search && search.length >= 3 && search !== '' ) {
         if ( !props.searching ) props.toggleSearch();
         setLoading( true );
         index.search(search).then( ({ hits }) => fetchCompleteData( hits ).then( response => { 

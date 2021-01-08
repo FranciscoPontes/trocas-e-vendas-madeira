@@ -13,6 +13,8 @@ import AlgoliaSearch from '../UI/AlgoliaSearch/AlgoliaSearch';
 
 
 const HomePage = props => {
+    
+    const [ loginButtonClicked, setLoginButtonClicked ] = useState( false );
 
     const redirect = path => {
         props.history.replace(path);
@@ -20,22 +22,29 @@ const HomePage = props => {
 
     useEffect( () => {
         if ( !props.user ) return;
+
         props.initFetch();
         props.fetchData(props.user.id, true);
         props.getLikeList(props.user.id);
-    }, [props.user] );
 
-    const fetchDataOnClick = () => {
+    }, [ props.user ] );
+
+    const fetchDataOnClick = () => {   
         props.initFetch();
         props.fetchData(props.user.id);
         props.getLikeList(props.user.id);
+    }
+
+    const loginButtonClick = () => {
+        props.login();
+        setLoginButtonClicked( true );
     }
 
     const generateSells = sells => (
             <React.Fragment>
                 <div className="sells-content"> 
                     { Object.keys(sells).map( ( sell, index )  => {
-                        if ( index  > 4 ) return;
+                        if ( index  > 4 ) return null;
                         return <Card key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
                      }) }
                 </div>
@@ -43,7 +52,7 @@ const HomePage = props => {
                 <TextDisplay text="Mais publicações" headingType="h4" className=""/>
                 <div className="sells-content"> 
                     { Object.keys(sells).map( ( sell, index )  => {
-                        if ( index  <= 4 ) return;
+                        if ( index  <= 4 ) return null;
                         return <Card key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
                      }) }
                 </div>
@@ -53,6 +62,10 @@ const HomePage = props => {
             </React.Fragment>
             );
 
+    useEffect( () => {
+        if ( !props.user && loginButtonClicked ) setLoginButtonClicked( false );
+    }, [props.user])
+
     return (
         <React.Fragment>
             <div className="homepage-content">
@@ -61,14 +74,14 @@ const HomePage = props => {
                     { !props.user ? 
                     <div className="homepage-buttons">
                         <div className="login-display">
-                            <Button color="primary" text="Login" className="buttons login" click={props.login} />
-                            <img src={poweredByGoogle} width="25px" />
+                            <Button color="primary" text="Login" className={ !loginButtonClicked ? "buttons login" : "buttons login clicked" }  click={loginButtonClick} />
+                            <img src={poweredByGoogle} width="25px" alt="poweredByGoogle"/>
                         </div>
                     </div> 
                     : <React.Fragment>
                         <div className="homepage-buttons">
                             <Button text="Vender" className="buttons blue" click={ () => redirect("/nova-venda")}/>
-                            <Button text="Minhas vendas" className="buttons yellow" click={ () => redirect("/minhas-vendas")}/>   
+                            <Button text="Minha área" className="buttons yellow" click={ () => redirect("/minhas-vendas")}/>   
                         </div>
                         <AlgoliaSearch />
                      </React.Fragment>

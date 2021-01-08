@@ -34,6 +34,10 @@
     background-color: #decd8a;
 }
     
+.buttons.login.clicked {
+    pointer-events: none;
+}
+
 .sells-content {
     display: flex;
     justify-content: center;

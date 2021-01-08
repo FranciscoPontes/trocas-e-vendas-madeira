@@ -8,15 +8,24 @@ import Card from '../UI/Card/Card';
 import TextDisplay from '../UI/TextDisplay';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Paper from '@material-ui/core/Paper';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
 const MySells = props => {
 
     const [ showComplete, setShowComplete ] = useState(false);
+    
+    const [ currentTab, setCurrentTab ] = useState(0);
 
-    useEffect( async () => {
-        props.startFetch();
-        props.getSellsData(props.user.id);
-    }, [] )
+    useEffect( () => {
+        if ( currentTab === 0) {
+            props.startFetch();
+            props.getSellsData(props.user.id);
+            return;
+        }
+        fetchLikedSells();
+    }, [ currentTab, props.userLikes ] )
 
     const deleteCurrentEntry = docId => {
         const confirmation = window.confirm("Quer mesmo eliminar a referida venda/troca?");
@@ -32,10 +41,10 @@ const MySells = props => {
         props.updateData( docId, data );
     }
 
-    const generateSellDisplaysv2 = sells => (
+    const generateSellDisplays = sells => (
         <div className="sells-content"> 
             { Object.keys(sells).map( key => {
-                if ( sells[key].complete === 'true' && !showComplete ) return;
+                if ( sells[key].complete === 'true' && !showComplete ) return null;
                 return <Card key={sells[key].docId} docData={sells[key]} value={sells[key].docId}
                                                         canDelete={deleteCurrentEntry}
                                                         completeSell={updateDocData}
@@ -45,13 +54,45 @@ const MySells = props => {
         </div>
     );
 
+    const displayedCardNumber = sells => {
+        if ( !sells ) return 0;
+        return Object.keys(sells).reduce( (acc, sell) => {
+            if ( sells[sell].complete === 'true' && !showComplete ) return acc;
+            return acc + 1;
+        }, 0 )
+    }
+
+    const fetchLikedSells = () => {
+        props.startFetch();
+        props.getLikedSells( props.userLikes );
+    }
+
+    const generateLikedSells = sells => (
+        <div className="sells-content"> 
+            { Object.keys(sells).map( key =>  <Card key={sells[key].docId} docData={sells[key]} value={sells[key].docId}/>) }
+        </div>
+    );
+
     return (
         <div className="my-sells">
             <div className="heading-display">
                 { !props.fetchDone ? <Spinner /> : null }
                 <div className="text-and-switch">
-                    <TextDisplay text="Minhas publicações" headingType="h4"/>
-                    <div className="toggle-complete-sells">
+                    {/* <TextDisplay text="Minhas publicações" headingType="h4"/> */}
+                    <Paper square className="nav-menu">
+                        <Tabs
+                            value={currentTab}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            onChange={ ( event, newValue ) => setCurrentTab(newValue)}
+                            centered
+                            className="tabs"
+                        >
+                            <Tab label="Minhas publicações" className="tab"/>
+                            <Tab label="Meus favoritos" className="tab"/>
+                        </Tabs>
+                    </Paper>
+                    { currentTab === 0 ? <div className="toggle-complete-sells">
                     <FormControlLabel
                         control={
                             <Switch
@@ -59,13 +100,16 @@ const MySells = props => {
                                 color="primary"
                             />
                         }
-                        label="Completos"
+                        label="Completas"
                     />
                     </div>
+                    : null }
                 </div>
-                { ! ( props.sells ) ? <TextDisplay text="Não tem nenhuma publicação" headingType="h6"/> : null }
+                { displayedCardNumber( props.sells ) === 0 && currentTab === 0 ? <TextDisplay text="Não criou nenhuma publicação" headingType="h6"/> 
+                : displayedCardNumber( props.likedSells ) === 0 && currentTab === 1 ? <TextDisplay text="Não gostou de nenhuma publicação" headingType="h6"/> : null  }
             </div>
-            {  props.sells && props.fetchDone ? generateSellDisplaysv2(props.sells) : null }
+            {  props.sells && props.fetchDone && currentTab === 0 ? generateSellDisplays(props.sells) : null}
+            {  props.likedSells && props.fetchDone && currentTab === 1 ? generateLikedSells(props.likedSells) : null}
         </div>
     );
 }
@@ -74,7 +118,9 @@ const mapStateToProps = state => {
     return {
         user: state.user,
         sells: state.userSells,
-        fetchDone: state.fetchDone
+        fetchDone: state.fetchDone,
+        userLikes: state.userLikes,
+        likedSells: state.likedSells
     }
 }
 
@@ -83,7 +129,8 @@ const mapDispatchToProps = dispatch => {
         startFetch: () => dispatch({type:actionTypes.START_FETCH}),
         getSellsData: (userId) => dispatch(ReducerAPI.getUserSells(userId)),
         deleteSell: (docId, sells) => dispatch(ReducerAPI.deleteSell(docId, sells)),
-        updateData: ( docId, data)  => dispatch(ReducerAPI.updateDocData( docId, data ) )
+        updateData: ( docId, data)  => dispatch(ReducerAPI.updateDocData( docId, data ) ),
+        getLikedSells: ( likeList ) => dispatch( ReducerAPI.fetchOtherSells( null, null, likeList ) )
     }
 }
 
