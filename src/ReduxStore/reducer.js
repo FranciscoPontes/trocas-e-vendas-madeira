@@ -13,13 +13,13 @@ const initState = {
     likedSells: null
 }
 
-export const tryLogin = () => {
+export const tryLogin = ( redirected = false ) => {
     return dispatch => { 
-        FirebaseAPI.login().then( response => { 
-                dispatch({type: actionTypes.LOGIN_USER, data: response});                
-                })
-                .catch( error => console.error(error) )
-        } 
+            FirebaseAPI.login( redirected ).then( response => { 
+            dispatch({type: actionTypes.LOGIN_USER, data: response});                
+            })
+            .catch( error => console.error(error) )
+    } 
 }
 
 export const logout = () => dispatch => FirebaseAPI.logout().then( () => dispatch( {type: actionTypes.LOGOUT_USER} ) ).catch( error => console.error(error) );

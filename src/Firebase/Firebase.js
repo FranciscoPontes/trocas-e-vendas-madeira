@@ -34,7 +34,7 @@ export const logout = () => {
                 .catch( error => console.error( error ) );
 }
 
-export const login = () => {
+export const login =  redirected => {
 
     if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
@@ -43,7 +43,6 @@ export const login = () => {
     }
 
     db = firebase.firestore();
-    firebase.auth().useDeviceLanguage();
 
     if ( sessionStorage.getItem('cp-persuasive-user') ) {
         
@@ -55,23 +54,28 @@ export const login = () => {
                     .catch( error => console.error( error ) );
     }
 
-    const provider = new firebase.auth.GoogleAuthProvider();
+    if ( !redirected ) {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().useDeviceLanguage();
+        sessionStorage.setItem('login-init', true);
+        firebase.auth().signInWithRedirect( provider );
+        return;
+    }
 
-    return firebase.auth().signInWithPopup(provider).then(function(result) {
-
+    sessionStorage.setItem('login-init', false);
+    return firebase.auth().getRedirectResult().then( result => {
         sessionStorage.setItem('cp-persuasive-user',   btoa( JSON.stringify( result.credential ) ) );
         
         return getRelevantUserData( result.user );
     }).catch( error => {
         var errorCode = error.code;
         var errorMessage = error.message;
-        // The email of the user's account used.
         // var email = error.email;
-        // The firebase.auth.AuthCredential type that was used.
         // var credential = error.credential;
-        // ...
         console.error( errorCode + errorMessage );
     });
+
+
 }
 
 export const updateDocumentData = (docId, data) => {

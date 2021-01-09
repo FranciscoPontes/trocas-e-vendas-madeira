@@ -56,6 +56,7 @@ const HomePage = props => {
     
     useEffect( () => {
         if ( cachedCredential && !props.user ) loginButtonClick();
+        else if ( !cachedCredential && !props.user && sessionStorage.getItem('login-init') ) props.login( true );
     }, [])
 
     useEffect( () => {
@@ -116,7 +117,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        login: () => dispatch(ReducerAPI.tryLogin()),
+        login: value => dispatch(ReducerAPI.tryLogin(value)),
         initFetch: () => dispatch({type: actionTypes.START_FETCH}),
         fetchData: (uId, limit = false) => dispatch(ReducerAPI.fetchOtherSells(uId, limit)),
         getLikeList: (uId) => dispatch(ReducerAPI.getUserLikeList(uId))
