@@ -11,23 +11,15 @@ import poweredByGoogle from '../images/powered_by_google_on_white.png';
 import AddIcon from '@material-ui/icons/Add';
 import AlgoliaSearch from '../UI/AlgoliaSearch/AlgoliaSearch';
 
-
 const HomePage = props => {
     
     const [ loginButtonClicked, setLoginButtonClicked ] = useState( false );
 
+    const cachedCredential = sessionStorage.getItem('cp-persuasive-user');
+
     const redirect = path => {
         props.history.replace(path);
     }
-
-    useEffect( () => {
-        if ( !props.user ) return;
-
-        props.initFetch();
-        props.fetchData(props.user.id, true);
-        props.getLikeList(props.user.id);
-
-    }, [ props.user ] );
 
     const fetchDataOnClick = () => {   
         props.initFetch();
@@ -61,6 +53,18 @@ const HomePage = props => {
                 </div>
             </React.Fragment>
             );
+    
+    useEffect( () => {
+        if ( cachedCredential && !props.user ) loginButtonClick();
+    }, [])
+
+    useEffect( () => {
+        if ( !props.user ) return;
+        props.initFetch();
+        props.fetchData(props.user.id, true);
+        props.getLikeList(props.user.id);
+
+    }, [ props.user ] );
 
     useEffect( () => {
         if ( !props.user && loginButtonClicked ) setLoginButtonClicked( false );
@@ -69,12 +73,14 @@ const HomePage = props => {
     return (
         <React.Fragment>
             <div className="homepage-content">
-                { !props.fetchDone ? <Spinner /> : null}
+                { !props.fetchDone || ( cachedCredential && !props.user ) ? <Spinner /> : null}
                 
-                    { !props.user ? 
+                    { !props.user  ? 
                     <div className="homepage-buttons">
                         <div className="login-display">
-                            <Button color="primary" text="Login" className={ !loginButtonClicked ? "buttons login" : "buttons login clicked" }  click={loginButtonClick} />
+                            { !cachedCredential ? 
+                                <Button color="primary" text="Login" className={ !loginButtonClicked ? "buttons login" : "buttons login clicked" }  click={loginButtonClick} />
+                                : null }
                             <img src={poweredByGoogle} width="25px" alt="poweredByGoogle"/>
                         </div>
                     </div> 

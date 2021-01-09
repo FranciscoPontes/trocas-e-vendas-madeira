@@ -15,13 +15,14 @@ const initState = {
 
 export const tryLogin = () => {
     return dispatch => { 
-            login().then( response => dispatch({type: actionTypes.LOGIN_USER, data: response}))
-                .catch( error => {
-                    console.error(error);
-                    return dispatch({type: actionTypes.LOGOUT_USER})
+        FirebaseAPI.login().then( response => { 
+                dispatch({type: actionTypes.LOGIN_USER, data: response});                
                 })
+                .catch( error => console.error(error) )
         } 
 }
+
+export const logout = () => dispatch => FirebaseAPI.logout().then( () => dispatch( {type: actionTypes.LOGOUT_USER} ) ).catch( error => console.error(error) );
 
 export const getUserSells =  uId => async dispatch => { 
         await FirebaseAPI.fetchUserData(uId)

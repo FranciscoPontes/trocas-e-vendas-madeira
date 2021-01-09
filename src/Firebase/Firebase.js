@@ -19,18 +19,22 @@ let db;
 const SELLS_DATA = "sells_data";
 const USER_DATA = "user_data";
 
+const getRelevantUserData = data => {
+    return {
+        name: data.displayName,
+        photo: data.photoURL,
+        id: data.uid,
+        email: data.email
+    }
+}
+
 export const logout = () => {
-    firebase.auth().signOut().then(function() {
-    // Sign-out successful.
-    }).catch(function(error) {
-        // An error happened.
-    });
+    return firebase.auth().signOut()
+                .then( () => sessionStorage.removeItem('cp-persuasive-user') )
+                .catch( error => console.error( error ) );
 }
 
 export const login = () => {
-    var userData;
-
-    // Initialize Firebase
 
     if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
@@ -38,31 +42,27 @@ export const login = () => {
     firebase.app(); // if already initialized, use that one
     }
 
-    firebase.auth().languageCode = 'pt';
+    db = firebase.firestore();
+    firebase.auth().useDeviceLanguage();
+
+    if ( sessionStorage.getItem('cp-persuasive-user') ) {
+        
+        const cachedCredential = JSON.parse( atob( sessionStorage.getItem('cp-persuasive-user') ) );
+        const credential = firebase.auth.GoogleAuthProvider.credential( cachedCredential.oauthIdToken, cachedCredential.oauthAccessToken );
+
+        return firebase.auth().signInWithCredential( credential )
+                    .then( result => getRelevantUserData( result.user ) )
+                    .catch( error => console.error( error ) );
+    }
 
     const provider = new firebase.auth.GoogleAuthProvider();
 
     return firebase.auth().signInWithPopup(provider).then(function(result) {
 
-    // This gives you a Google Access Token. You can use it to access the Google API.
-    // var token = result.credential.accessToken;
-    // The signed-in user info.
-    var user = result.user;
-
-    userData = {
-        name: user.displayName,
-        photo: user.photoURL,
-        id: user.uid,
-        email: user.email
-    }
-    
-    db = firebase.firestore();
-    
-    return userData;
-
-    // ...
-    }).catch(function(error) {
-        // Handle Errors here.
+        sessionStorage.setItem('cp-persuasive-user',   btoa( JSON.stringify( result.credential ) ) );
+        
+        return getRelevantUserData( result.user );
+    }).catch( error => {
         var errorCode = error.code;
         var errorMessage = error.message;
         // The email of the user's account used.
@@ -70,7 +70,7 @@ export const login = () => {
         // The firebase.auth.AuthCredential type that was used.
         // var credential = error.credential;
         // ...
-        return errorCode + errorMessage;
+        console.error( errorCode + errorMessage );
     });
 }
 

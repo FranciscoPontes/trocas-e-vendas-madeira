@@ -4,26 +4,18 @@ import Flag from '../images/madeira-flag.png';
 import Chip from '@material-ui/core/Chip';
 import Avatar from '@material-ui/core/Avatar';
 import {connect} from 'react-redux';
-import firebase from 'firebase/app';
-import 'firebase/auth';
-import * as actionTypes from '../ReduxStore/actionTypes';
 import {NavLink} from 'react-router-dom';
 import TextDisplay from '../UI/TextDisplay';
+import { logout } from '../ReduxStore/reducer';
 
 const NavBar = props => {
 
     const logout = () => {
         const confirmation = window.confirm("Continuar para logout?");
         if ( !confirmation ) return;
-        firebase.auth().signOut().then(function() {
-        // Sign-out successful.
         props.logout();
-        }).catch(function(error) {
-            // An error happened.
-        });
     }
     
-
     return (
         <div className="navbar">
             <NavLink to="/"><img src={Flag} alt="madeira-flag" height="100%"/></NavLink>
@@ -49,7 +41,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        logout: () => dispatch({type: actionTypes.LOGOUT_USER})
+        logout: () => dispatch( logout() )
     }
 }
 
