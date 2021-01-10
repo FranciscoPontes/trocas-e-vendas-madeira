@@ -38,7 +38,7 @@ const HomePage = props => {
                      }) }
                 </div>
                 <hr className="horizontal-break" />
-                <TextDisplay text="Mais publicações" headingType="h4" className=""/>
+                <TextDisplay text="Mais publicações" headingType="h5" className=""/>
                 <div className="sells-content"> 
                     { Object.keys(sells).map( ( sell, index )  => {
                         if ( index  <= 4 ) return null;
@@ -93,7 +93,7 @@ const HomePage = props => {
                 
                 { props.otherSells && props.user && !props.searching ? 
                 <React.Fragment>
-                    <TextDisplay text="Publicações mais curtidas" headingType="h4"/>
+                    <TextDisplay text="Publicações mais curtidas" headingType="h5"/>
                     { props.fetchDone ? generateSells( props.otherSells ) : null }
                     </React.Fragment> 
                 : null }

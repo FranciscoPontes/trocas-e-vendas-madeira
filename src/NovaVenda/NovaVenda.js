@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import TextField from '@material-ui/core/TextField';
-import './NovaVenda.css';
+import './NovaVenda.scss';
 import CustomButton from '../UI/Button';
 import * as reducerAPI from '..//ReduxStore/reducer';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -138,7 +138,7 @@ const NovaVenda = props => {
     return (
         <React.Fragment>
             <div className="heading">
-                <TextDisplay text="Nova venda" headingType="h4"/>
+                <TextDisplay text="Nova venda" headingType="h5"/>
             </div>
             <form className="new-sell" noValidate autoComplete="off">
                 <TextField id="title" label="Titulo da venda" variant="outlined" className="input" onChange={(event) => setInput({...input,title: event.target.value})}/>

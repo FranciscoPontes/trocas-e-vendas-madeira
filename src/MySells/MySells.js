@@ -2,18 +2,14 @@ import React, { useState, useEffect } from 'react';
 import {connect} from 'react-redux';
 import * as ReducerAPI from '../ReduxStore/reducer';
 import * as actionTypes from '../ReduxStore/actionTypes';
-import './MySells.css';
+import './MySells.scss';
 import Spinner from '../UI/Spinner';
 import Card from '../UI/Card/Card';
-import TextDisplay from '../UI/TextDisplay';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Paper from '@material-ui/core/Paper';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import ConfirmDialog from '../UI/ConfirmDialog/ConfirmDialog';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import Link from '@material-ui/core/Link';
+import TextDisplay from '../UI/TextDisplay';
 
 const MySells = props => {
 
@@ -97,23 +93,14 @@ const MySells = props => {
         </div>
     );
 
-    const changeCurrentTab = ( event, value ) => {
-        event.preventDefault();
-        setCurrentTab( value );
-    }
-
     return (
         <div className="my-sells">
             <div className="heading-display">
                 { !props.fetchDone ? <Spinner /> : null }
                 <div className="text-and-switch">
                     <Breadcrumbs className="breadcrumb">
-                        <Link onClick={ ( event ) => changeCurrentTab( event, 0 )} className={ currentTab === 0 ? "breadcrumb-link active" : "breadcrumb-link" }>
-                            Minhas publicações
-                        </Link>
-                        <Link onClick={ ( event ) => changeCurrentTab( event, 1 )} className={ currentTab === 1 ? "breadcrumb-link active" : "breadcrumb-link" }>
-                            Meus favoritos
-                        </Link>
+                        <TextDisplay text="Minhas publicações" headingType={ currentTab === 0 ? "h5" : "h6" }  onClick={ ( ) => setCurrentTab( 0 )} className={ currentTab === 0 ? "breadcrumb-link active" : "breadcrumb-link" }/>
+                        <TextDisplay text="Meus favoritos" headingType={ currentTab === 1 ? "h5" : "h6" } onClick={ ( ) => setCurrentTab( 1 )} className={ currentTab === 1 ? "breadcrumb-link active" : "breadcrumb-link" }/>
                     </Breadcrumbs>
                     { currentTab === 0 ? <div className="toggle-complete-sells">
                     <FormControlLabel
@@ -124,12 +111,13 @@ const MySells = props => {
                             />
                         }
                         label="Completas"
+                        className="switch-completas"
                     />
                     </div>
                     : null }
                 </div>
-                { displayedCardNumber( props.sells ) === 0 && currentTab === 0 ? <TextDisplay text="Não criou nenhuma publicação" headingType="h6"/> 
-                : displayedCardNumber( props.likedSells ) === 0 && currentTab === 1 ? <TextDisplay text="Não gostou de nenhuma publicação" headingType="h6"/> : null  }
+                { displayedCardNumber( props.sells ) === 0 && currentTab === 0 ? <TextDisplay text="Não criou nenhuma publicação" headingType="h6" className="no-data-text-display"/> 
+                : displayedCardNumber( props.likedSells ) === 0 && currentTab === 1 ? <TextDisplay text="Não gostou de nenhuma publicação" headingType="h6" className="no-data-text-display"/> : null  }
             </div>
             {  props.sells && props.fetchDone && currentTab === 0 ? generateSellDisplays(props.sells) : null}
             {  props.likedSells && props.fetchDone && currentTab === 1 ? generateLikedSells(props.likedSells) : null}
