@@ -12,6 +12,8 @@ import Paper from '@material-ui/core/Paper';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import ConfirmDialog from '../UI/ConfirmDialog/ConfirmDialog';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import Link from '@material-ui/core/Link';
 
 const MySells = props => {
 
@@ -95,25 +97,24 @@ const MySells = props => {
         </div>
     );
 
+    const changeCurrentTab = ( event, value ) => {
+        event.preventDefault();
+        setCurrentTab( value );
+    }
+
     return (
         <div className="my-sells">
             <div className="heading-display">
                 { !props.fetchDone ? <Spinner /> : null }
                 <div className="text-and-switch">
-                    {/* <TextDisplay text="Minhas publicações" headingType="h4"/> */}
-                    <Paper square className="nav-menu">
-                        <Tabs
-                            value={currentTab}
-                            indicatorColor="primary"
-                            textColor="primary"
-                            onChange={ ( event, newValue ) => setCurrentTab(newValue)}
-                            centered
-                            className="tabs"
-                        >
-                            <Tab label="Minhas publicações" className="tab"/>
-                            <Tab label="Meus favoritos" className="tab"/>
-                        </Tabs>
-                    </Paper>
+                    <Breadcrumbs className="breadcrumb">
+                        <Link onClick={ ( event ) => changeCurrentTab( event, 0 )} className={ currentTab === 0 ? "breadcrumb-link active" : "breadcrumb-link" }>
+                            Minhas publicações
+                        </Link>
+                        <Link onClick={ ( event ) => changeCurrentTab( event, 1 )} className={ currentTab === 1 ? "breadcrumb-link active" : "breadcrumb-link" }>
+                            Meus favoritos
+                        </Link>
+                    </Breadcrumbs>
                     { currentTab === 0 ? <div className="toggle-complete-sells">
                     <FormControlLabel
                         control={
