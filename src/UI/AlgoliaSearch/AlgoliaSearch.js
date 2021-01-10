@@ -82,9 +82,9 @@ const AlgoliaSearch = props => {
         if ( !props.searching ) props.toggleSearch();
         setLoading( true );
 
-        index.search(search, {filters: 'complete:false'}).then( ({ queryID, hits }) => fetchCompleteData( hits ).then( response => { 
+        index.search(search, {filters: 'complete:false'}).then( ({ hits }) => fetchCompleteData( hits ).then( response => { 
           console.log(hits);
-          if ( hits ) sendSearchEvent(queryID, props.userId, hits.map( hit => hit.objectID));
+          if ( hits ) sendSearchEvent( props.userId, hits.map( hit => hit.objectID) );
           setLoading( false );
           setHits( response );
         }) );

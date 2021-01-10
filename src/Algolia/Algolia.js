@@ -1,5 +1,5 @@
 import algoliasearch from 'algoliasearch';
-import searchInsights from 'search-insights';
+import aa from 'search-insights';
 
 const appId = 'BUC2AFISV8';
 const apiKey = '24ea111ab31687717be472db25bc5aff';
@@ -11,7 +11,7 @@ const client = algoliasearch(
 
 const index = client.initIndex('search-sells');
 
-searchInsights( 'init', {appId: appId, apiKey: '3347ced814c369f956cf3fa1bc564dd9'});
+aa( 'init', {appId: appId, apiKey: apiKey});
 
 const getFullData = data => {
     return {...data, objectID: data.docId};
@@ -23,10 +23,13 @@ export const updateAlgolia = data => index.partialUpdateObject( getFullData( dat
 
 export const deleteAlgolia = objectID => index.deleteObject( objectID ).then().catch( error => console.error( error ) );
 
-export const sendSearchEvent = ( userId, queryID, objIds ) => searchInsights( 'convertedObjectIDsAfterSearch', {
+export const sendSearchEvent = ( userId, objIds ) => {
+    console.log(userId);
+    console.log(objIds);
+    aa( 'convertedObjectIDs', {
     eventName: "search-event",
     userToken: userId,
-    queryID: queryID,
     index: 'search-sells',
     objectIDs: objIds
-});
+    })
+};

@@ -8,8 +8,12 @@ import Card from '../UI/Card/Card';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import ConfirmDialog from '../UI/ConfirmDialog/ConfirmDialog';
-import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import TextDisplay from '../UI/TextDisplay';
+import SnackBar from '../UI/Snackbar';
+import BottomNavigation from '@material-ui/core/BottomNavigation';
+import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
+import FolderIcon from '@material-ui/icons/Folder';
+import FavoriteIcon from '@material-ui/icons/Favorite';
 
 const MySells = props => {
 
@@ -24,6 +28,8 @@ const MySells = props => {
     const [ docIdToDelete, setDocIdToDelete ] = useState( null );
 
     const [ docIdToUpdate, setDocIdToUpdate ] = useState( null );
+
+    const [ showSnackBar, setShowSnackBar ] = useState( { message: null, show: false } );
 
     useEffect( () => {
         if ( currentTab === 0) {
@@ -40,7 +46,13 @@ const MySells = props => {
     }
 
     const deleteCurrentEntry = value => {
-        if ( value ) props.deleteSell(docIdToDelete, props.sells);
+        if ( value ) { 
+            props.deleteSell(docIdToDelete, props.sells);
+            setShowSnackBar( {
+                message: 'Venda apagada!',
+                show: true
+            });
+        }
         setDocIdToDelete( null );
         setShowDeleteConfirmDialog( false );
     }
@@ -56,6 +68,10 @@ const MySells = props => {
             data["complete"] = "true";
             data["completionDate"] = new Date().toISOString().slice(0, 10);
             props.updateData( docIdToUpdate, data );
+            setShowSnackBar( {
+                message: 'A venda foi completa!',
+                show: true
+            });
         }
         setDocIdToUpdate( null );
         setShowUpdateConfirmDialog( false );
@@ -75,7 +91,7 @@ const MySells = props => {
     );
 
     const displayedCardNumber = sells => {
-        if ( !sells ) return 0;
+        if ( !sells || ( Object.keys(sells).length === 0 && sells.constructor === Object ) ) return 0;
         return Object.keys(sells).reduce( (acc, sell) => {
             if ( sells[sell].complete === 'true' && !showComplete ) return acc;
             return acc + 1;
@@ -93,16 +109,31 @@ const MySells = props => {
         </div>
     );
 
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+    
+        setShowSnackBar( false );
+      };
+
     return (
         <div className="my-sells">
             <div className="heading-display">
                 { !props.fetchDone ? <Spinner /> : null }
                 <div className="text-and-switch">
-                    <Breadcrumbs className="breadcrumb">
-                        <TextDisplay text="Minhas publicações" headingType={ currentTab === 0 ? "h5" : "h6" }  onClick={ ( ) => setCurrentTab( 0 )} className={ currentTab === 0 ? "breadcrumb-link active" : "breadcrumb-link" }/>
-                        <TextDisplay text="Meus favoritos" headingType={ currentTab === 1 ? "h5" : "h6" } onClick={ ( ) => setCurrentTab( 1 )} className={ currentTab === 1 ? "breadcrumb-link active" : "breadcrumb-link" }/>
-                    </Breadcrumbs>
-                    { currentTab === 0 ? <div className="toggle-complete-sells">
+                    <BottomNavigation
+                        value={currentTab}
+                        onChange={(event, newValue) => {
+                            setCurrentTab(newValue);
+                        }}
+                        showLabels
+                        className="mobile-nav"
+                        >
+                        <BottomNavigationAction label="Minhas publicações" icon={<FolderIcon /> } />
+                        <BottomNavigationAction label="Favoritos" icon={<FavoriteIcon />} />
+                    </BottomNavigation>
+                    { currentTab === 0 && displayedCardNumber( props.sells ) !== 0 ? <div className="toggle-complete-sells">
                     <FormControlLabel
                         control={
                             <Switch
@@ -123,6 +154,7 @@ const MySells = props => {
             {  props.likedSells && props.fetchDone && currentTab === 1 ? generateLikedSells(props.likedSells) : null}
             <ConfirmDialog open={showDeleteConfirmDialog} onClose={ () => setShowDeleteConfirmDialog( false ) } click={deleteCurrentEntry} title="Apagar venda?"/>
             <ConfirmDialog open={showUpdateConfirmDialog} onClose={ () => setShowUpdateConfirmDialog( false ) } click={updateDocData} title="Completar venda?"/>
+            <SnackBar open={showSnackBar.show} closeSnackbar={ handleSnackbarClose } message={showSnackBar.message} className="snackbar-my-sells"/>
         </div>
     );
 }

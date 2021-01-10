@@ -53,34 +53,54 @@
     width: 100%;
 }
 
-.breadcrumb {
-    display: flex;
-}
-
-.breadcrumb .breadcrumb-link {
-    cursor: pointer;
-}
-
 .heading-display .no-data-text-display {
     margin-top: 30px;
-}
-
-.breadcrumb .breadcrumb-link.active {
-    font-weight: bold; 
 }
 
 .switch-completas span.MuiFormControlLabel-label {
     font-size: $font-size-small;
 }
 
+.snackbar-my-sells, .snackbar-my-sells div  {
+    background-color: $blue-color-flag !important;
+    color: white;
+    border-radius: 10px;
+    max-width: 60%;
+}
+
+.snackbar-my-sells div {
+    max-width: 100%;
+}
+
+.mobile-nav {
+    z-index: 999;
+    background: none;
+}
+
+.mobile-nav button.Mui-selected{
+    color: $blue-color-flag;
+}
+
 @media ( max-width: 650px ) {
-    .text-and-switch {
-        flex-flow: column;
-        width: fit-content;
+    .toggle-complete-sells {
+        margin-bottom: 10px;
     }
 
-    .toggle-complete-sells {
-        position: static;
-        margin: 10px 0;
+    .mobile-nav {
+        visibility: visible;
+        position: fixed;
+        width: 100%;
+        left: 0;
+        bottom: 0;
+        height: 8vh;    
+        background-color: #dfecfa !important;
+    }
+
+    .sells-content {
+        margin-bottom: 8vh;
+    }
+    
+    .heading-display {
+        margin-bottom: 50px;
     }
 }

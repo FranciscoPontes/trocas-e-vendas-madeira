@@ -51,6 +51,16 @@ const HomePage = props => {
             </React.Fragment>
             );
     
+    const informativeText = () => {
+        return (
+            <React.Fragment>
+                Nesta plataforma pode colocar anúncios de vendas dos seus produtos,
+                bem como ver anúncios de outras pessoas. O processo de venda ocorre externamente pela responsabilidades dos utilizadores.
+                <br/> <b>Dica de uso:</b> A qualquer momento pode clicar na bandeira do canto superior esquerdo para voltar à página inicial.
+            </React.Fragment>
+        );
+    }
+
     useEffect( () => {
         if ( cachedCredential && !props.user ) loginButtonClick();
         else if ( !cachedCredential && !props.user && sessionStorage.getItem('login-init') === 'true' ) {
@@ -74,14 +84,17 @@ const HomePage = props => {
                 { !props.fetchDone || ( cachedCredential  && !props.user ) || autoLoginStarted ? <Spinner /> : null}
                 
                     { !props.user  ? 
-                    <div className="homepage-buttons">
-                        <div className="login-display">
-                            { !cachedCredential && !autoLoginStarted ? 
-                                <Button color="primary" text="Login" className="buttons login"  click={loginButtonClick} />
-                                : null }
-                            <img src={poweredByGoogle} width="25px" alt="poweredByGoogle"/>
-                        </div>
-                    </div> 
+                    <React.Fragment> 
+                        <div className="homepage-buttons">
+                            <div className="login-display">
+                                { !cachedCredential && !autoLoginStarted ? 
+                                    <Button color="primary" text="Login" className="buttons login"  click={loginButtonClick} />
+                                    : null }
+                                <img src={poweredByGoogle} width="25px" alt="poweredByGoogle"/>
+                            </div>
+                        </div> 
+                        <TextDisplay text={informativeText()} headingType="h6"/>
+                    </React.Fragment>
                     : <React.Fragment>
                         <div className="homepage-buttons">
                             <Button text="Vender" className="buttons blue" click={ () => redirect("/nova-venda")}/>
