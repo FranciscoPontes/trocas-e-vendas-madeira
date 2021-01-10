@@ -98,14 +98,23 @@ const getDocumentsOrdered = () => db.collection(SELLS_DATA).orderBy("likeCount",
 const getDocumentsOrderedCurrentUser = filter => db.collection(SELLS_DATA).where(filter.row, filter.comparator, filter.givenFilter).orderBy("likeCount", "desc").get().then( response => response).catch(error => console.error( error ) );
 // getting data
 
-export const deleteDocument = docId => {
+export const deleteDocument = ( docId, data ) => {
     return db.collection(SELLS_DATA).doc(docId).delete().then(function() {
         console.log("Document successfully deleted!");
         AlgoliaAPI.deleteAlgolia( docId );
+        deleteImages( data.userId, data.images );
     }).catch(function(error) {
         console.error("Error removing document: ", error);
     });
 }
+
+const deleteImages = ( uId, images ) => {
+    images.map(async image => {
+        let storageRef = firebase.storage().ref();
+        let completeRef = storageRef.child('images/' + uId + '/' + image);
+        completeRef.delete().then( () => console.log("Image successfully deleted!") ).catch(error => console.error( error ) );
+        });
+};
 
 const postImages = async ( uId, images ) => {
     await images.map(async image => {

@@ -32,7 +32,7 @@ export const getUserSells =  uId => async dispatch => {
 
 export const deleteSell = ( docId, sells ) => {
     return dispatch => {
-            FirebaseAPI.deleteDocument( docId ).then( () => {
+            FirebaseAPI.deleteDocument( docId, sells[docId] ).then( () => {
             let currentData = {...sells};
             delete currentData[docId];
             return dispatch({type: actionTypes.DELETE_SELL, data: currentData})
