@@ -13,9 +13,9 @@ import AlgoliaSearch from '../UI/AlgoliaSearch/AlgoliaSearch';
 
 const HomePage = props => {
     
-    const [ loginButtonClicked, setLoginButtonClicked ] = useState( false );
-
     const cachedCredential = sessionStorage.getItem('cp-persuasive-user');
+
+    const [ autoLoginStarted, setAutoLoginStarted ] = useState( false );
 
     const redirect = path => {
         props.history.replace(path);
@@ -27,10 +27,7 @@ const HomePage = props => {
         props.getLikeList(props.user.id);
     }
 
-    const loginButtonClick = () => {
-        props.login();
-        setLoginButtonClicked( true );
-    }
+    const loginButtonClick = () => props.login();
 
     const generateSells = sells => (
             <React.Fragment>
@@ -56,8 +53,12 @@ const HomePage = props => {
     
     useEffect( () => {
         if ( cachedCredential && !props.user ) loginButtonClick();
-        else if ( !cachedCredential && !props.user && sessionStorage.getItem('login-init') ) props.login( true );
-    }, [])
+        else if ( !cachedCredential && !props.user && sessionStorage.getItem('login-init') === 'true' ) {
+            props.login( true );
+            setAutoLoginStarted( true );
+        }
+        else if ( autoLoginStarted && props.user ) setAutoLoginStarted( false );
+    } )
 
     useEffect( () => {
         if ( !props.user ) return;
@@ -67,20 +68,16 @@ const HomePage = props => {
 
     }, [ props.user ] );
 
-    useEffect( () => {
-        if ( !props.user && loginButtonClicked ) setLoginButtonClicked( false );
-    }, [props.user])
-
     return (
         <React.Fragment>
             <div className="homepage-content">
-                { !props.fetchDone || ( cachedCredential && !props.user ) ? <Spinner /> : null}
+                { !props.fetchDone || ( cachedCredential  && !props.user ) || autoLoginStarted ? <Spinner /> : null}
                 
                     { !props.user  ? 
                     <div className="homepage-buttons">
                         <div className="login-display">
-                            { !cachedCredential ? 
-                                <Button color="primary" text="Login" className={ !loginButtonClicked ? "buttons login" : "buttons login clicked" }  click={loginButtonClick} />
+                            { !cachedCredential && !autoLoginStarted ? 
+                                <Button color="primary" text="Login" className="buttons login"  click={loginButtonClick} />
                                 : null }
                             <img src={poweredByGoogle} width="25px" alt="poweredByGoogle"/>
                         </div>

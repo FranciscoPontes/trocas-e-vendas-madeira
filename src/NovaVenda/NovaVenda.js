@@ -12,6 +12,7 @@ import TextDisplay from '../UI/TextDisplay';
 import IconButton from '@material-ui/core/IconButton';
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
 import Button from '@material-ui/core/Button';
+import ConfirmDialog from '../UI/ConfirmDialog/ConfirmDialog';
 
 const NovaVenda = props => {
 
@@ -35,18 +36,42 @@ const NovaVenda = props => {
 
     const [createButtonClicked, setCreateButtonClicked] = useState( false );
 
-    useEffect( () => {
-        if (createButtonClicked && props.uploadDone) {
-            alert("Troca/venda criada!");
-            props.history.push("/");
-        }
-    }, [createButtonClicked, props.uploadDone]);
+    const [ alertDialogSettings, setAlertDialogSettings ] = useState( {
+        title: null,
+        description: null,
+        show: false,
+        disableBackdrop: false
+    });
+
+    const [ alertOkClicked, setAlertOkClicked ] = useState( false );
 
     const postNewSell = () => {
         var data = input;
         if (data.price <= 0 || data.images === null) {
-            if (data.price <= 0) { alert("Preço não é válido!"); return; }
-            if (data.images === null) { alert("Adicione pelo menos uma imagem!"); return; }
+            if (data.title === "") { 
+                setAlertDialogSettings( {
+                    title: "Adicione um título!",
+                    description: null,
+                    show: true
+                })
+                return; 
+            }
+            if (data.price <= 0) { 
+                setAlertDialogSettings( {
+                    title: "Preço não é válido!",
+                    description: "O preço tem de ser superior a 0.",
+                    show: true
+                })
+                return; 
+            }
+            if (data.images === null) { 
+                setAlertDialogSettings( {
+                    title: "Adicione pelo menos uma imagem!",
+                    description: null,
+                    show: true
+                })
+                return; 
+            }
             setInput({
                 ...input,
                 price: 0
@@ -60,7 +85,11 @@ const NovaVenda = props => {
     const handleImagesChange = ( value, targetValue ) => {
         if ( value.length > 5 ) {
             targetValue = null;
-            alert("Só pode adicionar no máximo 5 imagens!");
+            setAlertDialogSettings( {
+                title: "Só pode adicionar no máximo 5 imagens!",
+                description: null,
+                show: true
+            })
             $("input#images").val("");
             setImages(null); 
             setInput({
@@ -82,6 +111,29 @@ const NovaVenda = props => {
             images: images
         });
     }
+
+    useEffect( () => {
+        if (createButtonClicked && props.uploadDone) {
+            setAlertDialogSettings( {
+                title: "Troca criada!",
+                description: null,
+                show: true,
+                disableBackdrop: true
+            })
+        }
+    }, [createButtonClicked, props.uploadDone]);
+
+    useEffect( () => {
+        if ( createButtonClicked && alertOkClicked) props.history.push("/");
+        else if ( alertOkClicked ) {
+            setAlertDialogSettings( {
+                title: null,
+                description: null,
+                show: false
+            })
+            setAlertOkClicked( false );
+        }
+    }, [createButtonClicked, alertOkClicked ] )
 
     return (
         <React.Fragment>
@@ -111,7 +163,10 @@ const NovaVenda = props => {
                 { images ? <ImagePreview bulkImages={images} /> : null }
                 { !props.uploadDone ? <Spinner className="spinner-my-sells"/> : <CustomButton color="primary" className="new-sell-button" text="Criar" click={postNewSell}/> }
             </form>
-
+            <ConfirmDialog alert disableEscapeKeyDown={alertDialogSettings.disableBackdrop} disableBackdropClick={alertDialogSettings.disableBackdrop} 
+                        title={alertDialogSettings.title} description={alertDialogSettings.description} 
+                        open={alertDialogSettings.show} click={ () => setAlertOkClicked( true ) } 
+                        onClose={ () => setAlertDialogSettings( {...alertDialogSettings, show: false} ) } />
         </React.Fragment>
     );
 }        

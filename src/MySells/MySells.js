@@ -11,12 +11,21 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Paper from '@material-ui/core/Paper';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import ConfirmDialog from '../UI/ConfirmDialog/ConfirmDialog';
 
 const MySells = props => {
 
     const [ showComplete, setShowComplete ] = useState(false);
     
     const [ currentTab, setCurrentTab ] = useState(0);
+
+    const [ showDeleteConfirmDialog, setShowDeleteConfirmDialog ] = useState( false );
+
+    const [ showUpdateConfirmDialog, setShowUpdateConfirmDialog ] = useState( false );
+
+    const [ docIdToDelete, setDocIdToDelete ] = useState( null );
+
+    const [ docIdToUpdate, setDocIdToUpdate ] = useState( null );
 
     useEffect( () => {
         if ( currentTab === 0) {
@@ -27,18 +36,31 @@ const MySells = props => {
         fetchLikedSells();
     }, [ currentTab, props.userLikes ] )
 
-    const deleteCurrentEntry = docId => {
-        const confirmation = window.confirm("Quer mesmo eliminar a referida venda/troca?");
-        if (confirmation) props.deleteSell(docId, props.sells);
+    const confirmDeleteCurrentEntry = docId => { 
+        setDocIdToDelete( docId );
+        setShowDeleteConfirmDialog( true );
     }
 
-    const updateDocData = docId => {
-        const confirmation = window.confirm("Completar troca/venda?");
-        if ( !confirmation ) return;
-        let data = {...props.sells[docId]};
-        data["complete"] = "true";
-        data["completionDate"] = new Date().toISOString().slice(0, 10);
-        props.updateData( docId, data );
+    const deleteCurrentEntry = value => {
+        if ( value ) props.deleteSell(docIdToDelete, props.sells);
+        setDocIdToDelete( null );
+        setShowDeleteConfirmDialog( false );
+    }
+
+    const confirmUpdateDocData = docId => {
+        setDocIdToUpdate( docId );
+        setShowUpdateConfirmDialog( true );
+    }
+
+    const updateDocData = value => {
+        if ( value ) {
+            let data = {...props.sells[ docIdToUpdate ]};
+            data["complete"] = "true";
+            data["completionDate"] = new Date().toISOString().slice(0, 10);
+            props.updateData( docIdToUpdate, data );
+        }
+        setDocIdToUpdate( null );
+        setShowUpdateConfirmDialog( false );
     }
 
     const generateSellDisplays = sells => (
@@ -46,8 +68,8 @@ const MySells = props => {
             { Object.keys(sells).map( key => {
                 if ( sells[key].complete === 'true' && !showComplete ) return null;
                 return <Card key={sells[key].docId} docData={sells[key]} value={sells[key].docId}
-                                                        canDelete={deleteCurrentEntry}
-                                                        completeSell={updateDocData}
+                                                        canDelete={confirmDeleteCurrentEntry}
+                                                        completeSell={confirmUpdateDocData}
                                                         location={props.location.pathname}/>
                 }
             ) }
@@ -110,6 +132,8 @@ const MySells = props => {
             </div>
             {  props.sells && props.fetchDone && currentTab === 0 ? generateSellDisplays(props.sells) : null}
             {  props.likedSells && props.fetchDone && currentTab === 1 ? generateLikedSells(props.likedSells) : null}
+            <ConfirmDialog open={showDeleteConfirmDialog} onClose={ () => setShowDeleteConfirmDialog( false ) } click={deleteCurrentEntry} title="Apagar venda?"/>
+            <ConfirmDialog open={showUpdateConfirmDialog} onClose={ () => setShowUpdateConfirmDialog( false ) } click={updateDocData} title="Completar venda?"/>
         </div>
     );
 }
