@@ -1,5 +1,4 @@
 import * as actionTypes from './actionTypes';
-import {login} from '../Firebase/Firebase';
 import * as FirebaseAPI from '../Firebase/Firebase';
 
 const initState = {
