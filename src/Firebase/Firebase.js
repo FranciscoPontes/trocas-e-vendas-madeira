@@ -51,7 +51,10 @@ export const login =  redirected => {
 
         return firebase.auth().signInWithCredential( credential )
                     .then( result => getRelevantUserData( result.user ) )
-                    .catch( error => console.error( error ) );
+                    .catch( error => { 
+                        console.error( error );
+                        return 'ERROR'; 
+                    });
     }
 
     if ( !redirected ) {

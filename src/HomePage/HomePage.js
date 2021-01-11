@@ -72,6 +72,7 @@ const HomePage = props => {
 
     useEffect( () => {
         if ( !props.user ) return;
+        if ( props.user === 'ERROR' ) cachedCredential = false;
         props.initFetch();
         props.fetchData(props.user.id, true);
         props.getLikeList(props.user.id);
