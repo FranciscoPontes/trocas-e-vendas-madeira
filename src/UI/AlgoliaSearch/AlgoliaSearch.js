@@ -9,7 +9,6 @@ import './AlgoliaSearch.css';
 import SearchIcon from '@material-ui/icons/Search';
 import { fade, makeStyles } from '@material-ui/core/styles';
 import InputBase from '@material-ui/core/InputBase';
-import { sendSearchEvent } from '../../Algolia/Algolia';
 
 const searchClient = algoliasearch(
   'BUC2AFISV8',
@@ -79,12 +78,10 @@ const AlgoliaSearch = props => {
 
   useEffect( () => {
       if ( search && search.length >= 3 && search !== '' ) {
-        if ( !props.searching ) props.toggleSearch();
+        props.toggleSearch( search );
         setLoading( true );
 
         index.search(search, {filters: 'complete:false'}).then( ({ hits }) => fetchCompleteData( hits ).then( response => { 
-          console.log(hits);
-          if ( hits ) sendSearchEvent( props.userId, hits.map( hit => hit.objectID) );
           setLoading( false );
           setHits( response );
         }) );
@@ -134,7 +131,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    toggleSearch: () => dispatch({type: actionTypes.TOGGLE_SEARCH})
+    toggleSearch: ( data = null ) => dispatch({type: actionTypes.TOGGLE_SEARCH, data: data})
   }
 }
 

@@ -73,7 +73,7 @@
 }
 
 .mobile-nav {
-    z-index: 999;
+    z-index: auto;
     background: none;
 }
 
@@ -87,6 +87,7 @@
     }
 
     .mobile-nav {
+        z-index: 999;
         visibility: visible;
         position: fixed;
         width: 100%;

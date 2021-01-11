@@ -11,6 +11,10 @@ const client = algoliasearch(
 
 const index = client.initIndex('search-sells');
 
+const INDEX_NAME = 'search-sells';
+const CLICKED_IMG_EVENT = 'clicked-img-after-search';
+const LIKED_EVENT = 'liked-img';
+
 aa( 'init', {appId: appId, apiKey: apiKey});
 
 const getFullData = data => {
@@ -23,13 +27,20 @@ export const updateAlgolia = data => index.partialUpdateObject( getFullData( dat
 
 export const deleteAlgolia = objectID => index.deleteObject( objectID ).then().catch( error => console.error( error ) );
 
-export const sendSearchEvent = ( userId, objIds ) => {
-    console.log(userId);
-    console.log(objIds);
-    aa( 'convertedObjectIDs', {
-    eventName: "search-event",
-    userToken: userId,
-    index: 'search-sells',
-    objectIDs: objIds
-    })
+export const sendLikedEvent = ( userId, objIds ) => {
+    aa('clickedObjectIDs', {
+        userToken: userId,
+        index: INDEX_NAME,
+        eventName: LIKED_EVENT,
+        objectIDs: objIds
+      });
 };
+
+export const sendImgClickedEvent = ( userId, objIDs ) => { 
+    aa('clickedObjectIDs', {
+    userToken: userId,
+    index: INDEX_NAME,
+    eventName: CLICKED_IMG_EVENT,
+    objectIDs: objIDs
+  });
+}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
@@ -21,6 +21,7 @@ import DoneOutlineIcon from '@material-ui/icons/DoneOutline';
 import $ from 'jquery';
 import { connect } from 'react-redux';
 import * as ReducerAPI from '../../ReduxStore/reducer';
+import * as algoliaAPI from '../../Algolia/Algolia';
 
 const useStyles = makeStyles((theme) => ({
   expand: {
@@ -51,8 +52,21 @@ const RecipeReviewCard = props => {
 
   const boxListItems = [{"icon": callIcon(), "text": props.docData.phone_number, "click": call}, {"icon": mailIcon(), "text": props.docData.email, "click": redirectMail}];
 
-  const addFav = e => {
+  const [ likeClickedTimeout, setLikeClickedTimeout ] = useState( false );
 
+  useEffect( () => {
+    if ( likeClickedTimeout ) {
+      setTimeout( () =>  { 
+        setLikeClickedTimeout( false );
+      }, 1000);
+    } 
+  }, [likeClickedTimeout] )
+
+  const addFav = e => {
+    // prevent multiple quick clicks
+    if ( likeClickedTimeout ) return;
+
+    setLikeClickedTimeout( true );
     let result = getParsedLikeList();
 
     const docData = { ...props.otherSells[props.value] };
@@ -62,6 +76,10 @@ const RecipeReviewCard = props => {
       $(e.target).parent().parent().parent().addClass("clicked");
       $(e.target).addClass("clicked");
       docData["likeCount"] = parseInt( docData.likeCount ) + 1;
+
+      //send algolia event loggedUserId
+      console.log( "Sending liked event.." );
+      algoliaAPI.sendLikedEvent( props.loggedUserId, [ props.value ] );
     }
     else if ( result && result.includes( "" + props.value + "" ) ) {
       result.splice( result.indexOf( props.value ), 1 );
@@ -110,7 +128,7 @@ const RecipeReviewCard = props => {
         subheader={props.docData.date}
         action={ props.canDelete && props.docData.complete === 'false' ? <DeleteForeverIcon className="delete-icon" fontSize="large" onClick={ () => props.canDelete( props.value ) }/> : null } 
       />
-      <ImagePreview bulkImages={props.docData.imagesUrl}/>
+      <ImagePreview bulkImages={props.docData.imagesUrl} objectId={props.value}/>
       <CardContent>
         <Typography variant="body2" color="textSecondary" component="p">
           <b>{props.docData.title}</b> <br/> { props.docData.price + " €"} <br/><br/>Descrição: <br/> {props.docData.description}
@@ -118,7 +136,9 @@ const RecipeReviewCard = props => {
       </CardContent>
       <CardActions disableSpacing>
         <React.Fragment>
-          <IconButton aria-label="add to favorites"  onClick={(e) => addFav(e) } className={ isMySells() ? "favButton my-own-sells" : wasAlreadyLiked() ? "favButton clicked" : "favButton"}>
+          <IconButton aria-label="add to favorites"  
+            onClick={(e) => addFav(e) } 
+            className={ isMySells() ? "favButton my-own-sells" : wasAlreadyLiked() ? "favButton clicked" : "favButton"}>
             <FavoriteIcon />
           </IconButton>
           <span>{props.docData.likeCount}</span>

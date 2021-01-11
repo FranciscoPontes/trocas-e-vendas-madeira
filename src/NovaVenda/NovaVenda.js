@@ -13,6 +13,7 @@ import IconButton from '@material-ui/core/IconButton';
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
 import Button from '@material-ui/core/Button';
 import ConfirmDialog from '../UI/ConfirmDialog/ConfirmDialog';
+import * as actionTypes from '../ReduxStore/actionTypes';
 
 const NovaVenda = props => {
 
@@ -113,6 +114,10 @@ const NovaVenda = props => {
     }
 
     useEffect( () => {
+        if ( props.searching ) props.toggleSearch();
+    }, [] )
+
+    useEffect( () => {
         if (createButtonClicked && props.uploadDone) {
             setAlertDialogSettings( {
                 title: "Troca criada!",
@@ -177,13 +182,15 @@ const mapStateToProps = state =>{
         email: state.user.email,
         photo: state.user.photo,
         userName: state.user.name,
-        uploadDone: state.uploadDone
+        uploadDone: state.uploadDone,
+        searching: state.searching
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        uploadNewSell: data => dispatch( reducerAPI.uploadNewSell( data ) )
+        uploadNewSell: data => dispatch( reducerAPI.uploadNewSell( data ) ),
+        toggleSearch: () => dispatch( { type: actionTypes.TOGGLE_SEARCH } )
     }
 }
 

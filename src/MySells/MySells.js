@@ -31,15 +31,6 @@ const MySells = props => {
 
     const [ showSnackBar, setShowSnackBar ] = useState( { message: null, show: false } );
 
-    useEffect( () => {
-        if ( currentTab === 0) {
-            props.startFetch();
-            props.getSellsData(props.user.id);
-            return;
-        }
-        fetchLikedSells();
-    }, [ currentTab, props.userLikes ] )
-
     const confirmDeleteCurrentEntry = docId => { 
         setDocIdToDelete( docId );
         setShowDeleteConfirmDialog( true );
@@ -117,6 +108,19 @@ const MySells = props => {
         setShowSnackBar( false );
       };
 
+    useEffect( () => {
+        if ( props.searching ) props.toggleSearch();
+    }, [] )
+
+    useEffect( () => {
+        if ( currentTab === 0) {
+            props.startFetch();
+            props.getSellsData(props.user.id);
+            return;
+        }
+        fetchLikedSells();
+    }, [ currentTab, props.userLikes ] )
+
     return (
         <div className="my-sells">
             <div className="heading-display">
@@ -165,7 +169,8 @@ const mapStateToProps = state => {
         sells: state.userSells,
         fetchDone: state.fetchDone,
         userLikes: state.userLikes,
-        likedSells: state.likedSells
+        likedSells: state.likedSells,
+        searching: state.searching
     }
 }
 
@@ -175,7 +180,8 @@ const mapDispatchToProps = dispatch => {
         getSellsData: (userId) => dispatch(ReducerAPI.getUserSells(userId)),
         deleteSell: (docId, sells) => dispatch(ReducerAPI.deleteSell(docId, sells)),
         updateData: ( docId, data)  => dispatch(ReducerAPI.updateDocData( docId, data ) ),
-        getLikedSells: ( likeList ) => dispatch( ReducerAPI.fetchOtherSells( null, null, likeList ) )
+        getLikedSells: ( likeList ) => dispatch( ReducerAPI.fetchOtherSells( null, null, likeList ) ),
+        toggleSearch: () => dispatch( {type: actionTypes.TOGGLE_SEARCH} )
     }
 }
 
