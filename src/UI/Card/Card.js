@@ -21,7 +21,6 @@ import DoneOutlineIcon from '@material-ui/icons/DoneOutline';
 import $ from 'jquery';
 import { connect } from 'react-redux';
 import * as ReducerAPI from '../../ReduxStore/reducer';
-import * as algoliaAPI from '../../Algolia/Algolia';
 
 const useStyles = makeStyles((theme) => ({
   expand: {
@@ -76,10 +75,6 @@ const RecipeReviewCard = props => {
       $(e.target).parent().parent().parent().addClass("clicked");
       $(e.target).addClass("clicked");
       docData["likeCount"] = parseInt( docData.likeCount ) + 1;
-
-      //send algolia event loggedUserId
-      console.log( "Sending liked event.." );
-      algoliaAPI.sendLikedEvent( props.loggedUserId, [ props.value ] );
     }
     else if ( result && result.includes( "" + props.value + "" ) ) {
       result.splice( result.indexOf( props.value ), 1 );
@@ -118,6 +113,7 @@ const RecipeReviewCard = props => {
 
   const isMySells = () => props.location === '/minhas-vendas';
 
+
   return (
     <Card className={props.docData.complete === "true" ? "card complete" : "card"}>
       <CardHeader
@@ -141,7 +137,7 @@ const RecipeReviewCard = props => {
             className={ isMySells() ? "favButton my-own-sells" : wasAlreadyLiked() ? "favButton clicked" : "favButton"}>
             <FavoriteIcon />
           </IconButton>
-          <span>{props.docData.likeCount}</span>
+          <span>{props.docData.objectID ? props.otherSells[props.docData.objectID].likeCount : props.docData.likeCount}</span>
         </React.Fragment>
         { props.docData.complete === 'false' && props.canDelete ? 
             <IconButton onClick={ () => props.completeSell(props.value) }>

@@ -126,7 +126,7 @@ const mapStateToProps = state => {
   return {
     searching: state.searching,
     userId: state.user.id
-  }
+    }
 }
 
 const mapDispatchToProps = dispatch => {
