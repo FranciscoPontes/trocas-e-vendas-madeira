@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef } from 'react';
 import TextField from '@material-ui/core/TextField';
 import './NovaVenda.scss';
 import CustomButton from '../UI/Button';
@@ -7,7 +7,6 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import {connect} from 'react-redux';
 import ImagePreview from '../UI/BulkImagePreview/BulkImagePreview';
 import Spinner from '../UI/Spinner';
-import $ from 'jquery';
 import TextDisplay from '../UI/TextDisplay';
 import IconButton from '@material-ui/core/IconButton';
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
@@ -45,6 +44,8 @@ const NovaVenda = props => {
     });
 
     const [ alertOkClicked, setAlertOkClicked ] = useState( false );
+
+    const fileInputRef = useRef();
 
     const postNewSell = () => {
         var data = input;
@@ -91,7 +92,7 @@ const NovaVenda = props => {
                 description: null,
                 show: true
             })
-            $("input#images").val("");
+            fileInputRef.current.value = "";
             setImages(null); 
             setInput({
                 ...input,
@@ -156,7 +157,7 @@ const NovaVenda = props => {
                 <TextField id="phone_number" label="Contacto (opcional)" variant="outlined" className="input" onChange={(event) => setInput({...input,phone_number: event.target.value})}/>
                 <TextField id="email" label="Email" variant="outlined" className="input" onChange={(event) => setInput({...input,email: event.target.value})} value={input.email} />
                 
-                <input accept="image/*" id="contained-button-file" type="file" multiple onChange={(event) => handleImagesChange(event.target.files, event.target.value)} />
+                <input ref={fileInputRef} accept="image/*" id="contained-button-file" type="file" multiple onChange={(event) => handleImagesChange(event.target.files, event.target.value)} />
                 <label htmlFor="contained-button-file" className="upload-container">
                     <Button variant="contained" color="primary" component="span" className="upload-button">
                         <IconButton color="primary" aria-label="upload picture" component="span" className="upload-photo-icon">
