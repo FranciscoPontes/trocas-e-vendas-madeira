@@ -51,13 +51,8 @@ export const updateDocData = ( docId, data ) => dispatch => FirebaseAPI.updateDo
 
 export const updateLikeCount = (uId, docId, data, likeList) => {
     return async dispatch => {
-        // hotfix
-        let fixedData = { ...data };
-        if ( isNaN( fixedData.likeCount ) ) {
-            fixedData.likeCount = 0;
-        }
         // update doc like count
-        await FirebaseAPI.updateDocumentData(docId, fixedData).then( () => dispatch({type: actionTypes.UPDATE_DOC_LIKES, data: fixedData, key: docId}) ).catch( error => console.error( error ) );
+        await FirebaseAPI.updateDocumentData(docId, data).then( () => dispatch({type: actionTypes.UPDATE_DOC_LIKES, data: data, key: docId}) ).catch( error => console.error( error ) );
         // update user like list
         await FirebaseAPI.addDocument("user_data", uId, likeList).then( () => dispatch({type: actionTypes.UPDATE_USER_LIKES, data: likeList}) ).catch( error => console.error( error ) );
     }

@@ -119,7 +119,7 @@ const MySells = props => {
             return;
         }
         fetchLikedSells();
-    }, [ currentTab, props.userLikes ] )
+    }, [ currentTab ] )
 
     return (
         <div className="my-sells">
@@ -134,8 +134,8 @@ const MySells = props => {
                         showLabels
                         className="mobile-nav"
                         >
-                        <BottomNavigationAction label="Minhas publicações" icon={<FolderIcon /> } />
-                        <BottomNavigationAction label="Favoritos" icon={<FavoriteIcon />} />
+                        <BottomNavigationAction label="Minhas publicações" icon={<FolderIcon fontSize="large"/> } />
+                        <BottomNavigationAction label="Favoritos" icon={<FavoriteIcon fontSize="large"/>} />
                     </BottomNavigation>
                     { currentTab === 0 && displayedCardNumber( props.sells ) !== 0 ? <div className="toggle-complete-sells">
                     <FormControlLabel

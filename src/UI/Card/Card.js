@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
@@ -18,7 +18,6 @@ import CallIcon from '@material-ui/icons/Call';
 import MailIcon from '@material-ui/icons/Mail';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import DoneOutlineIcon from '@material-ui/icons/DoneOutline';
-import $ from 'jquery';
 import { connect } from 'react-redux';
 import * as ReducerAPI from '../../ReduxStore/reducer';
 
@@ -53,49 +52,14 @@ const RecipeReviewCard = props => {
 
   const [ likeClickedTimeout, setLikeClickedTimeout ] = useState( false );
 
-  useEffect( () => {
-    if ( likeClickedTimeout ) {
-      setTimeout( () =>  { 
-        setLikeClickedTimeout( false );
-      }, 1000);
-    } 
-  }, [likeClickedTimeout] )
+  const [ actualLikeCount, setActualLikeCount ] = useState( props.docData.likeCount );
 
-  const addFav = e => {
-    // prevent multiple quick clicks
-    if ( likeClickedTimeout ) return;
+  const [ wasAlreadyLiked ] = useState( props.userLikes.likeList && props.userLikes.likeList.includes( "" + props.value + "" ) );
 
-    setLikeClickedTimeout( true );
-    let result = getParsedLikeList();
+  const cardLikeRef = useRef();
 
-    const docData = { ...props.otherSells[props.value] };
-
-    if ( result && !result.includes( "" + props.value + "" ) ) {
-      result.push(props.value);
-      $(e.target).parent().parent().parent().addClass("clicked");
-      $(e.target).addClass("clicked");
-      docData["likeCount"] = parseInt( docData.likeCount ) + 1;
-    }
-    else if ( result && result.includes( "" + props.value + "" ) ) {
-      result.splice( result.indexOf( props.value ), 1 );
-      $(e.target).removeClass("clicked");
-      $(e.target).parent().removeClass("clicked");
-      docData["likeCount"] = parseInt( docData.likeCount ) - 1;
-    }
-    else result = [props.value];
-
-    let likeList = {};
-    likeList["likeList"] = JSON.stringify( result );
-
-    props.updateLikeCount( props.loggedUserId, props.value , docData , likeList);
-  }
-
-  // check whether the sell has already been liked by the current user
-  const wasAlreadyLiked = () => {
-    const likeList = getParsedLikeList();
-    return ( likeList && likeList.includes( "" + props.value + "" ) );
-  }
-
+  const isMySells = props.location === '/minhas-vendas';
+ 
   const getParsedLikeList = () => {
     Object.size = obj => {
       var size = 0, key;
@@ -104,15 +68,51 @@ const RecipeReviewCard = props => {
       }
       return size;
     };
-
     let result;
     if ( Object.size(props.userLikes) > 0 ) result = JSON.parse(props.userLikes.likeList);
     else result = [];
     return result;
   }
 
-  const isMySells = () => props.location === '/minhas-vendas';
+  useEffect( () => {
+    if ( likeClickedTimeout ) {
+      setTimeout( () =>  { 
+        setLikeClickedTimeout( false );
+      }, 1000);
+    } 
+    
+  }, [likeClickedTimeout] )
 
+  const addFav = e => {
+    // prevent multiple quick clicks
+    if ( likeClickedTimeout ) return;
+
+    setLikeClickedTimeout( true );
+    let result = getParsedLikeList();
+    const docData = { ...props.docData };
+
+    if ( result && !result.includes( "" + props.value + "" ) ) {
+      result.push(props.value);
+      cardLikeRef.current.classList.add("clicked");
+
+      docData["likeCount"] = parseInt( docData.likeCount + 1 );
+
+      setActualLikeCount( actualLikeCount + 1 );
+    }
+    else if ( result && result.includes( "" + props.value + "" ) ) {
+      result.splice( result.indexOf( props.value ), 1 );
+      cardLikeRef.current.classList.remove("clicked");
+      docData["likeCount"] =  parseInt( docData.likeCount - 1 );
+
+      setActualLikeCount( actualLikeCount - 1 );
+      
+    }
+    else result = [props.value];
+    let actualLikeList = {};
+    actualLikeList["likeList"] = JSON.stringify( result );
+
+    props.updateLikeCount( props.loggedUserId, props.value , docData , actualLikeList);
+  }
 
   return (
     <Card className={props.docData.complete === "true" ? "card complete" : "card"}>
@@ -134,10 +134,11 @@ const RecipeReviewCard = props => {
         <React.Fragment>
           <IconButton aria-label="add to favorites"  
             onClick={(e) => addFav(e) } 
-            className={ isMySells() ? "favButton my-own-sells" : wasAlreadyLiked() ? "favButton clicked" : "favButton"}>
+            className={ isMySells ? "favButton my-own-sells" : wasAlreadyLiked ? "favButton clicked" : "favButton"}
+            ref={cardLikeRef}>
             <FavoriteIcon />
           </IconButton>
-          <span>{props.docData.objectID ? props.otherSells[props.docData.objectID].likeCount : props.docData.likeCount}</span>
+          <span>{ actualLikeCount }</span>
         </React.Fragment>
         { props.docData.complete === 'false' && props.canDelete ? 
             <IconButton onClick={ () => props.completeSell(props.value) }>

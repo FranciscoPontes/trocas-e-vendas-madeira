@@ -13,7 +13,7 @@ import AlgoliaSearch from '../UI/AlgoliaSearch/AlgoliaSearch';
 
 const HomePage = props => {
     
-    const cachedCredential = sessionStorage.getItem('cp-persuasive-user');
+    const [ cachedCredential, setCachedCredential ] = useState( sessionStorage.getItem('cp-persuasive-user') );
 
     const [ autoLoginStarted, setAutoLoginStarted ] = useState( false );
 
@@ -67,12 +67,17 @@ const HomePage = props => {
             props.login( true );
             setAutoLoginStarted( true );
         }
+        else if ( props.user === 'ERROR' ) { 
+            console.log( "Error trying auto login" );
+            setCachedCredential( false );
+            sessionStorage.removeItem('cp-persuasive-user');
+            props.clearUser();
+        }
         else if ( autoLoginStarted && props.user ) setAutoLoginStarted( false );
     } )
 
     useEffect( () => {
-        if ( !props.user ) return;
-        if ( props.user === 'ERROR' ) cachedCredential = false;
+        if ( !props.user || props.user === 'ERROR' ) return;
         props.initFetch();
         props.fetchData(props.user.id, true);
         props.getLikeList(props.user.id);
@@ -82,7 +87,7 @@ const HomePage = props => {
     return (
         <React.Fragment>
             <div className="homepage-content">
-                { !props.fetchDone || ( cachedCredential  && !props.user ) || autoLoginStarted ? <Spinner /> : null}
+                { !props.fetchDone || ( cachedCredential  && !props.user && props.user !== 'ERROR' ) || autoLoginStarted ? <Spinner /> : null}
                 
                     { !props.user  ? 
                     <React.Fragment> 
@@ -131,7 +136,8 @@ const mapDispatchToProps = dispatch => {
         login: value => dispatch(ReducerAPI.tryLogin(value)),
         initFetch: () => dispatch({type: actionTypes.START_FETCH}),
         fetchData: (uId, limit = false) => dispatch(ReducerAPI.fetchOtherSells(uId, limit)),
-        getLikeList: (uId) => dispatch(ReducerAPI.getUserLikeList(uId))
+        getLikeList: (uId) => dispatch(ReducerAPI.getUserLikeList(uId)),
+        clearUser: () => dispatch( { type: actionTypes.LOGIN_USER, data: null} )
     }
 }
 

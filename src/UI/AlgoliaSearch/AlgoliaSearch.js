@@ -81,7 +81,8 @@ const AlgoliaSearch = props => {
         props.toggleSearch( search );
         setLoading( true );
 
-        index.search(search, {filters: 'complete:false'}).then( ({ hits }) => fetchCompleteData( hits ).then( response => { 
+        index.search(search, {filters: 'complete:false AND NOT userId:' + props.userId }).then( ({ hits }) => fetchCompleteData( hits ).then( response => { 
+          console.log( response );
           setLoading( false );
           setHits( response );
         }) );
