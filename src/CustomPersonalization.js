@@ -1,24 +1,43 @@
+import { performSearch } from './UI/AlgoliaSearch/AlgoliaSearch';
+
 // percentage value on which title or description should match
 const PERSONALIZATION_IMPACT = 50;
-
-const TITLE_1 = 'Iphone  12 novinho em folha';
-const DESC_1 = 'we should be equal';
-const TITLE_1_V2 = 'Iphone  12 novinho em folha';
-const DESC_1_V2 = 'we should not be equal';
-
-// liked one 
-const TITLE_2 = 'Vendo iphone';
-const DESC_2 = 'we should not be equal';
 
 let top5Matches = [];
 
 const sortArray = array => {
     array.sort( ( a, b ) => {
-        return a.matchValue - b.matchValue;
+        return b.matchValue - a.matchValue;
     })
 }
 
+const pushToFinalArray = elements => {
+    for ( let i in elements ) {
+        if ( top5Matches.length === 5 ) break;
+        top5Matches.push( { docId: elements[i].docId, matchValue: -1 } );
+    }
+}
+
+const addToTop5 = ( likedSells, sellsNotLiked ) => {
+    const filteredSellsNotLiked = sellsNotLiked.filter( sell => top5Matches.findIndex( value => value.docId === sell.docId ) === -1 );
+    // first add liked sells
+    pushToFinalArray( likedSells );
+
+    // first add liked sells
+    pushToFinalArray( filteredSellsNotLiked );
+
+    sortArray( top5Matches );
+}
+
 const getsTop5 = ( docId, matchValue ) => {
+    // check if sell already in list
+    if (typeof top5Matches !== 'undefined' && top5Matches.length > 0) {
+        let indexOfFind = top5Matches.findIndex( value => value.docId === docId );
+
+        if ( indexOfFind !== -1 && matchValue > top5Matches[ indexOfFind ].matchValue ) top5Matches[ indexOfFind ] = {...top5Matches[ indexOfFind ], matchValue: matchValue };
+        if ( indexOfFind !== -1 ) return;
+    }
+
     if ( top5Matches.length < 5 ) top5Matches.push( { docId: docId, matchValue: matchValue } );
     else {
         let copiedArray = [ ...top5Matches ];
@@ -37,12 +56,12 @@ const stringComparator = ( string1, string2 ) => {
     const string2Splitted = string2.split( ' ' );
     const possibleMatches = string1Splitted.length;
     let totalMatches = 0;
-    console.log( "Possible matches: " + possibleMatches );
+    // console.log( "Possible matches: " + possibleMatches );
 
-    for ( index1 in string1Splitted ) {
+    for ( let index1 in string1Splitted ) {
         if ( string1Splitted[index1].trim() === '' ) continue; 
 
-        for ( index2 in string2Splitted ) {
+        for ( let index2 in string2Splitted ) {
             if ( string2Splitted[index2].trim() === '' ) continue; 
             if ( string1Splitted[index1].toLowerCase() === string2Splitted[index2].toLowerCase() ) {
                 totalMatches++;
@@ -50,38 +69,65 @@ const stringComparator = ( string1, string2 ) => {
         } 
     }
 
-    console.log( "Matched " + totalMatches + " out of " + possibleMatches );
+    // console.log( "Matched " + totalMatches + " out of " + possibleMatches );
 
     return ( totalMatches / possibleMatches * 100 ).toPrecision( 4 );
 }
 
 // retrieve top 5 matches ( by title or by description )
-const getRecommendatedSells = () => {
+export const getRecommendedSells = async ( likeList, userId ) => {
     top5Matches = [];
-    // get our events - user likes and later maybe user img clicks after search
-    const likedSells = [ { title: TITLE_2, description: DESC_2, objId: 'likedSell' } ];
-    const sellsFetched = [ { title: TITLE_1, description: DESC_1, objId: 'firstSell' }, { title: TITLE_1_V2, description: DESC_1_V2, objId: 'secondSell' } ];
+    const parsedLikeList = JSON.parse( likeList.likeList );
+
+    const sellsFetched = await performSearch( '', 'complete:false AND NOT userId:' + userId ).then( response => response ).catch( error => console.error( error ) );
+    
+    const likedSells = sellsFetched.filter( value => parsedLikeList.includes( value.docId ) );
+
+    console.log( likedSells );
+
+    const sellsFetchedNoLikes = sellsFetched.filter( value => !parsedLikeList.includes( value.docId ) );
+
+    console.log( sellsFetchedNoLikes );
 
     // retrieve all records with algolia (?) - where the user is not the current and complete is false
 
-    for ( i in likedSells ) {
+    for ( let i in likedSells ) {
 
-        for ( x in sellsFetched ) {
-            // if same sell continue
-            if ( likedSells[i] === sellsFetched[x] ) continue;
+        for ( let x in sellsFetchedNoLikes ) {
 
             // start comparing titles and descriptions with the ones liked and clicked
-            const titleMatch = Number( stringComparator( likedSells[i].title , sellsFetched[x].title ) );
-            const descMatch = Number( stringComparator( likedSells[i].description , sellsFetched[x].description ) );
+            const titleMatch = Number( stringComparator( likedSells[i].title , sellsFetchedNoLikes[x].title ) );
+            const descMatch = Number( stringComparator( likedSells[i].description , sellsFetchedNoLikes[x].description ) );
 
             const betterMatch = titleMatch >= descMatch ? titleMatch : descMatch;
 
-            getsTop5( sellsFetched[x].objId, betterMatch );
+            getsTop5( sellsFetchedNoLikes[x].docId, betterMatch );
         }
     }
-    // use case - if like on iphone then top iphones will show
-
+    
+    console.log( "Before adding:" );
     console.log( top5Matches );
-}
 
-getRecommendatedSells();
+    // handle when length of returning array not 5
+    addToTop5( likedSells, sellsFetchedNoLikes );
+
+    console.log( "After adding:" );
+    console.log( top5Matches );
+
+    const finalFilter = top5Matches.reduce( (cb, value, index) => { 
+        let result = ' OR ';
+        if ( index === 0 ) return 'complete:false AND NOT userId:' + userId + ' AND docId:' + cb.docId;
+        result += 'docId:' + value.docId;
+        return cb + result; 
+    }, top5Matches[0] )
+
+    const negatedFilter = top5Matches.reduce( (cb, value, index) => { 
+        let result = ' AND NOT ';
+        if ( index === 0 ) return 'complete:false AND NOT userId:' + userId + ' AND NOT docId:' + cb.docId;
+        result += 'docId:' + value.docId;
+        return cb + result; 
+    }, top5Matches[0] )
+
+    return performSearch( '', finalFilter ).then( response => ( { sells: [ ...response], negatedFilter: negatedFilter } ) ).catch( error => console.error( error ) );
+
+}

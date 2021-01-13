@@ -8,14 +8,21 @@ import Spinner from '../UI/Spinner';
 import * as actionTypes from '../ReduxStore/actionTypes';
 import TextDisplay from '../UI/TextDisplay';
 import poweredByGoogle from '../images/powered_by_google_on_white.png';
-import AddIcon from '@material-ui/icons/Add';
 import AlgoliaSearch from '../UI/AlgoliaSearch/AlgoliaSearch';
+import { getRecommendedSells } from '../CustomPersonalization';
+import OtherSells from '../UI/DisplayOtherSells/DisplayOtherSells';
 
 const HomePage = props => {
     
     const [ cachedCredential, setCachedCredential ] = useState( sessionStorage.getItem('cp-persuasive-user') );
 
     const [ autoLoginStarted, setAutoLoginStarted ] = useState( false );
+
+    const [ fetchWithPersonalization, setFetchWithPersonalization ] = useState( false ); 
+
+    const [ recommendedSells, setRecommendedSells ] = useState( null );
+
+    const [ negatedFilter, setNegatedFilter ] = useState( null );
 
     const redirect = path => {
         props.history.replace(path);
@@ -29,28 +36,34 @@ const HomePage = props => {
 
     const loginButtonClick = () => props.login();
 
-    const generateSells = sells => (
-            <React.Fragment>
-                <div className="sells-content"> 
-                    { Object.keys(sells).map( ( sell, index )  => {
-                        if ( index  > 4 ) return null;
-                        return <Card key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
-                     }) }
-                </div>
-                <hr className="horizontal-break" />
-                <TextDisplay text="Mais publicações" headingType="h5" className=""/>
-                <div className="sells-content"> 
-                    { Object.keys(sells).map( ( sell, index )  => {
-                        if ( index  <= 4 ) return null;
-                        return <Card key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
-                     }) }
-                </div>
-                <div className="sells-content">
-                    <AddIcon onClick={ fetchDataOnClick } fontSize="large" className="load-more-icon"/>
-                </div>
-            </React.Fragment>
-            );
+    // const generateSells = sells => (
+    //         <React.Fragment>
+    //             <div className="sells-content"> 
+    //                 { Object.keys(sells).map( ( sell, index )  => {
+    //                     if ( index  > 4 ) return null;
+    //                     return <Card key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
+    //                  }) }
+    //             </div>
+    //             <hr className="horizontal-break" />
+    //             <TextDisplay text="Mais publicações" headingType="h5" className=""/>
+    //             <div className="sells-content"> 
+    //                 { Object.keys(sells).map( ( sell, index )  => {
+    //                     if ( index  <= 4 ) return null;
+    //                     return <Card key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
+    //                  }) }
+    //             </div>
+    //             <div className="sells-content">
+    //                 <AddIcon onClick={ fetchDataOnClick } fontSize="large" className="load-more-icon"/>
+    //             </div>
+    //         </React.Fragment>
+    //         );
     
+    const generateSells = () => (
+        <div className="sells-content"> 
+            { recommendedSells.map( sell => <Card key={ sell.docId } docData={ sell } value={ sell.docId }/> ) }
+        </div>
+    )
+
     const informativeText = () => {
         return (
             <React.Fragment>
@@ -60,6 +73,16 @@ const HomePage = props => {
             </React.Fragment>
         );
     }
+
+    useEffect( () => { 
+        if ( props.user && props.user !== 'ERROR' && props.likeList && !fetchWithPersonalization ) { 
+            getRecommendedSells( props.likeList, props.user.id ).then( response => { 
+                setRecommendedSells( response.sells );
+                setNegatedFilter( response.negatedFilter ); 
+            } );
+            setFetchWithPersonalization( true );
+            }
+    }, );
 
     useEffect( () => {
         if ( cachedCredential && !props.user ) loginButtonClick();
@@ -111,9 +134,15 @@ const HomePage = props => {
                     }
                 
                 { props.otherSells && props.user && !props.searching ? 
-                <React.Fragment>
-                    <TextDisplay text="Publicações mais curtidas" headingType="h5"/>
-                    { props.fetchDone ? generateSells( props.otherSells ) : null }
+                    <React.Fragment>
+                    <TextDisplay text="Recomendados" headingType="h5"/>
+                    { recommendedSells ? 
+                        <React.Fragment>
+                            { generateSells() }
+                            <OtherSells filter={ negatedFilter } />
+                        </React.Fragment>
+                        : null }
+                        { console.log( recommendedSells ) }
                     </React.Fragment> 
                 : null }
             </div>
@@ -126,7 +155,8 @@ const mapStateToProps = state => {
         user: state.user,
         otherSells: state.otherSells,
         fetchDone: state.fetchDone,
-        searching: state.searching
+        searching: state.searching,
+        likeList: state.userLikes
     }
 }
 

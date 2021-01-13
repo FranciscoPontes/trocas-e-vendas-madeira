@@ -58,6 +58,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const performSearch = ( searchText, filters ) => 
+      index.search(searchText, {filters: filters }).then( ( { hits } ) => hits ).catch(error => console.error( error ) );
 
 const AlgoliaSearch = props => {
   const classes = useStyles();
@@ -74,18 +76,20 @@ const AlgoliaSearch = props => {
       await getBulkImageUrl( hit.userId, hit.images ).then( response => completeHitData["imagesUrl"] = response ).catch(error => console.error( error ) );
       return completeHitData;
     }) )
-)
+  )
 
   useEffect( () => {
       if ( search && search.length >= 3 && search !== '' ) {
         props.toggleSearch( search );
         setLoading( true );
 
-        index.search(search, {filters: 'complete:false AND NOT userId:' + props.userId }).then( ({ hits }) => fetchCompleteData( hits ).then( response => { 
-          console.log( response );
-          setLoading( false );
-          setHits( response );
-        }) );
+        performSearch( search, 'complete:false AND NOT userId:' + props.userId ).then( response => 
+          fetchCompleteData( response ).then( response => {
+              setLoading( false );
+              setHits( response );
+            } ).catch( error => console.error( error ) ) )
+          .catch( error => console.error( error ) );
+
         return;
       }
       setHits( null );
