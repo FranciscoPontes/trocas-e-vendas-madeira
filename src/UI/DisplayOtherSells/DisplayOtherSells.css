@@ -4,8 +4,11 @@
     flex-wrap: wrap;
 }
 
-.load-more-icon {
+.no-more-sells-heading, .load-more-icon {
     margin-bottom: 40px;
+}
+
+.load-more-icon {
     cursor: pointer;
     background-color: #1e5e9b;
     border-radius: 100%;

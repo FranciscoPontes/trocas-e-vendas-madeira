@@ -1,8 +1,5 @@
 import { performSearch } from './UI/AlgoliaSearch/AlgoliaSearch';
 
-// percentage value on which title or description should match
-const PERSONALIZATION_IMPACT = 50;
-
 let top5Matches = [];
 
 const sortArray = array => { 
@@ -28,6 +25,7 @@ const addToTop5 = ( likedSells, sellsNotLiked ) => {
 }
 
 const getsTop5 = ( docId, matchValue ) => {
+    if ( matchValue === 0 ) return;
     // check if sell already in list
     if (typeof top5Matches !== 'undefined' && top5Matches.length > 0) {
         let indexOfFind = top5Matches.findIndex( value => value.docId === docId );
@@ -77,13 +75,8 @@ export const getRecommendedSells = async ( likeList, userId ) => {
     
     const likedSells = sellsFetched.filter( value => parsedLikeList.includes( value.docId ) );
 
-    // console.log( "Liked sells: " );
-    // console.log( likedSells );
-
     const sellsFetchedNoLikes = sellsFetched.filter( value => !parsedLikeList.includes( value.docId ) );
 
-    // console.log( "Rest - not liked sells: " );
-    // console.log( sellsFetchedNoLikes );
 
     // retrieve all records with algolia (?) - where the user is not the current and complete is false
 
@@ -91,13 +84,22 @@ export const getRecommendedSells = async ( likeList, userId ) => {
 
         for ( let x in sellsFetchedNoLikes ) {
 
-            // start comparing titles and descriptions with the ones liked and clicked
-            const titleMatch = Number( stringComparator( likedSells[i].title , sellsFetchedNoLikes[x].title ) );
-            const descMatch = Number( stringComparator( likedSells[i].description , sellsFetchedNoLikes[x].description ) );
+            // start comparing titles and descriptions - liked vs other
+            const titleTitleMatch = Number( stringComparator( likedSells[i].title , sellsFetchedNoLikes[x].title ) );
+            const titleDescMatch = Number( stringComparator( likedSells[i].title , sellsFetchedNoLikes[x].description ) );
+            const descDescMatch = Number( stringComparator( likedSells[i].description , sellsFetchedNoLikes[x].description ) );
+            const descTitleMatch = Number( stringComparator( likedSells[i].description , sellsFetchedNoLikes[x].title ) );
 
-            const betterMatch = titleMatch >= descMatch ? titleMatch : descMatch;
+            const allMatches = [ titleTitleMatch, titleDescMatch, descDescMatch, descTitleMatch ]
 
-            getsTop5( sellsFetchedNoLikes[x].docId, betterMatch );
+            // console.log( "Titulo liked " + likedSells[i].title );
+            // console.log( "Titulo a comparar " + sellsFetchedNoLikes[x].title );
+            // console.log( "All matches" );
+            // console.log( allMatches );
+
+            allMatches.sort( ( a, b ) => b - a )
+
+            getsTop5( sellsFetchedNoLikes[x].docId, allMatches[0] );
         }
     }
     
@@ -107,8 +109,8 @@ export const getRecommendedSells = async ( likeList, userId ) => {
     // handle when length of returning array not 5
     addToTop5( likedSells, sellsFetchedNoLikes );
 
-    // console.log( "After adding:" );
-    // console.log( top5Matches );
+    console.log( "After adding:" );
+    console.log( top5Matches );
 
     const finalFilter = top5Matches.reduce( (cb, value, index) => { 
         let result = ' OR ';
@@ -124,10 +126,7 @@ export const getRecommendedSells = async ( likeList, userId ) => {
         return cb + result; 
     }, top5Matches[0] )
 
-    console.log( top5Matches );
-
     const top5MatchesDocIdOnly = top5Matches.map( value => value.docId );
-    console.log( top5MatchesDocIdOnly );
 
     return performSearch( '', finalFilter ).then( response => ( { sells: [ ...response], negatedFilter: negatedFilter, orderedList: top5MatchesDocIdOnly } ) ).catch( error => console.error( error ) );
 }

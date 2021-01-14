@@ -12,25 +12,6 @@ import AlgoliaSearch from '../UI/AlgoliaSearch/AlgoliaSearch';
 import { getRecommendedSells } from '../CustomPersonalization';
 import OtherSells from '../UI/DisplayOtherSells/DisplayOtherSells';
 
-const orderList = ( orderedList, initialList ) => {
-    console.log( orderedList );
-    console.log( initialList );
-
-    let newList = [];
-
-    if ( orderedList ) {
-        for ( let i in orderedList ) {
-            newList[i] = initialList[ initialList.findIndex( value => value.docId === orderedList[i]) ]
-        }
-    }
-
-    console.log( "Updated list ");
-    console.log( newList );
-
-    return newList;
-}
-
-
 const HomePage = props => {
     
     const [ cachedCredential, setCachedCredential ] = useState( sessionStorage.getItem('cp-persuasive-user') );
@@ -45,12 +26,6 @@ const HomePage = props => {
 
     const redirect = path => {
         props.history.replace(path);
-    }
-
-    const fetchDataOnClick = () => {   
-        props.initFetch();
-        props.fetchData(props.user.id);
-        props.getLikeList(props.user.id);
     }
 
     const loginButtonClick = () => props.login();
@@ -71,15 +46,33 @@ const HomePage = props => {
         );
     }
 
+    const orderList = ( orderedList, initialList ) => {
+        console.log( "Initial List" );
+        console.log( initialList );
+    
+        let newList = [];
+    
+        if ( orderedList ) {
+            for ( let i in orderedList ) {
+                newList[i] = initialList[ initialList.findIndex( value => value.docId === orderedList[i]) ]
+            }
+        }
+    
+        console.log( "Correctly ordered list ");
+        console.log( newList );
+    
+        setRecommendedSells( newList );
+    }
+
     useEffect( () => { 
         if ( props.user && props.user !== 'ERROR' && props.likeList && !fetchWithPersonalization ) { 
             getRecommendedSells( props.likeList, props.user.id ).then( response => { 
-                setRecommendedSells( orderList( response.orderedList, response.sells ) );
-                setNegatedFilter( response.negatedFilter ); 
-            } );
-            setFetchWithPersonalization( true );
-            }
-    }, );
+                orderList( response.orderedList, response.sells );
+                setNegatedFilter( response.negatedFilter );
+                setFetchWithPersonalization( true ); 
+                } );
+        }
+    }, [ props.user, props.likeList, fetchWithPersonalization ] );
 
     useEffect( () => {
         if ( cachedCredential && !props.user ) loginButtonClick();
@@ -103,6 +96,11 @@ const HomePage = props => {
         props.getLikeList(props.user.id);
 
     }, [ props.user ] );
+
+    useEffect ( () => {
+        console.log( "New negated filter" ); 
+        console.log( negatedFilter ); 
+    }, [negatedFilter] )
 
     return (
         <React.Fragment>
