@@ -58,8 +58,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const performSearch = ( searchText, filters ) => 
-      index.search(searchText, {filters: filters }).then( ( { hits } ) => hits ).catch(error => console.error( error ) );
+const fetchCompleteData = async hits => (
+  await Promise.all( hits.map( async hit => { 
+    let completeHitData = hit;
+    await getBulkImageUrl( hit.userId, hit.images ).then( response => completeHitData["imagesUrl"] = response ).catch(error => console.error( error ) );
+    return completeHitData;
+  }) )
+)
+
+export const performSearch = async ( searchText, filters ) => 
+      index.search(searchText, { filters: filters } ).then( async ( { hits } ) => {
+          const completeHits = await fetchCompleteData( hits ).then( response => response );
+          return completeHits; 
+      } ).catch(error => console.error( error ) );
+
 
 const AlgoliaSearch = props => {
   const classes = useStyles();
@@ -70,13 +82,7 @@ const AlgoliaSearch = props => {
 
   const [ search, setSearch ] = useState(null);
 
-  const fetchCompleteData = async hits => (
-    await Promise.all( hits.map( async hit => { 
-      let completeHitData = hit;
-      await getBulkImageUrl( hit.userId, hit.images ).then( response => completeHitData["imagesUrl"] = response ).catch(error => console.error( error ) );
-      return completeHitData;
-    }) )
-  )
+
 
   useEffect( () => {
       if ( search && search.length >= 3 && search !== '' ) {

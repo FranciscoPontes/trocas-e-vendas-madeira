@@ -12,6 +12,25 @@ import AlgoliaSearch from '../UI/AlgoliaSearch/AlgoliaSearch';
 import { getRecommendedSells } from '../CustomPersonalization';
 import OtherSells from '../UI/DisplayOtherSells/DisplayOtherSells';
 
+const orderList = ( orderedList, initialList ) => {
+    console.log( orderedList );
+    console.log( initialList );
+
+    let newList = [];
+
+    if ( orderedList ) {
+        for ( let i in orderedList ) {
+            newList[i] = initialList[ initialList.findIndex( value => value.docId === orderedList[i]) ]
+        }
+    }
+
+    console.log( "Updated list ");
+    console.log( newList );
+
+    return newList;
+}
+
+
 const HomePage = props => {
     
     const [ cachedCredential, setCachedCredential ] = useState( sessionStorage.getItem('cp-persuasive-user') );
@@ -35,28 +54,6 @@ const HomePage = props => {
     }
 
     const loginButtonClick = () => props.login();
-
-    // const generateSells = sells => (
-    //         <React.Fragment>
-    //             <div className="sells-content"> 
-    //                 { Object.keys(sells).map( ( sell, index )  => {
-    //                     if ( index  > 4 ) return null;
-    //                     return <Card key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
-    //                  }) }
-    //             </div>
-    //             <hr className="horizontal-break" />
-    //             <TextDisplay text="Mais publicações" headingType="h5" className=""/>
-    //             <div className="sells-content"> 
-    //                 { Object.keys(sells).map( ( sell, index )  => {
-    //                     if ( index  <= 4 ) return null;
-    //                     return <Card key={sells[sell].docId} docData={sells[sell]} value={sells[sell].docId}/>;
-    //                  }) }
-    //             </div>
-    //             <div className="sells-content">
-    //                 <AddIcon onClick={ fetchDataOnClick } fontSize="large" className="load-more-icon"/>
-    //             </div>
-    //         </React.Fragment>
-    //         );
     
     const generateSells = () => (
         <div className="sells-content"> 
@@ -77,7 +74,7 @@ const HomePage = props => {
     useEffect( () => { 
         if ( props.user && props.user !== 'ERROR' && props.likeList && !fetchWithPersonalization ) { 
             getRecommendedSells( props.likeList, props.user.id ).then( response => { 
-                setRecommendedSells( response.sells );
+                setRecommendedSells( orderList( response.orderedList, response.sells ) );
                 setNegatedFilter( response.negatedFilter ); 
             } );
             setFetchWithPersonalization( true );

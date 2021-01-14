@@ -5,16 +5,14 @@ const PERSONALIZATION_IMPACT = 50;
 
 let top5Matches = [];
 
-const sortArray = array => {
-    array.sort( ( a, b ) => {
-        return b.matchValue - a.matchValue;
-    })
+const sortArray = array => { 
+    top5Matches = array.slice().sort( ( a, b ) => b.matchValue - a.matchValue );
 }
 
 const pushToFinalArray = elements => {
     for ( let i in elements ) {
         if ( top5Matches.length === 5 ) break;
-        top5Matches.push( { docId: elements[i].docId, matchValue: -1 } );
+        top5Matches = top5Matches.concat( { docId: elements[i].docId, matchValue: -1 } );
     }
 }
 
@@ -38,13 +36,11 @@ const getsTop5 = ( docId, matchValue ) => {
         if ( indexOfFind !== -1 ) return;
     }
 
-    if ( top5Matches.length < 5 ) top5Matches.push( { docId: docId, matchValue: matchValue } );
+    if ( top5Matches.length < 5 ) top5Matches = top5Matches.concat( { docId: docId, matchValue: matchValue } );
     else {
-        let copiedArray = [ ...top5Matches ];
-        copiedArray.push({ docId: docId, matchValue: matchValue } );
-        sortArray( copiedArray );
-        copiedArray.shift();
-        top5Matches = copiedArray;
+        top5Matches = top5Matches.concat({ docId: docId, matchValue: matchValue } );
+        sortArray( top5Matches );
+        top5Matches = top5Matches.filter( ( value, index ) => index !== top5Matches.length - 1 );
     }
     sortArray( top5Matches );
 }
@@ -69,8 +65,6 @@ const stringComparator = ( string1, string2 ) => {
         } 
     }
 
-    // console.log( "Matched " + totalMatches + " out of " + possibleMatches );
-
     return ( totalMatches / possibleMatches * 100 ).toPrecision( 4 );
 }
 
@@ -83,11 +77,13 @@ export const getRecommendedSells = async ( likeList, userId ) => {
     
     const likedSells = sellsFetched.filter( value => parsedLikeList.includes( value.docId ) );
 
-    console.log( likedSells );
+    // console.log( "Liked sells: " );
+    // console.log( likedSells );
 
     const sellsFetchedNoLikes = sellsFetched.filter( value => !parsedLikeList.includes( value.docId ) );
 
-    console.log( sellsFetchedNoLikes );
+    // console.log( "Rest - not liked sells: " );
+    // console.log( sellsFetchedNoLikes );
 
     // retrieve all records with algolia (?) - where the user is not the current and complete is false
 
@@ -105,14 +101,14 @@ export const getRecommendedSells = async ( likeList, userId ) => {
         }
     }
     
-    console.log( "Before adding:" );
-    console.log( top5Matches );
+    // console.log( "Before adding:" );
+    // console.log( top5Matches );
 
     // handle when length of returning array not 5
     addToTop5( likedSells, sellsFetchedNoLikes );
 
-    console.log( "After adding:" );
-    console.log( top5Matches );
+    // console.log( "After adding:" );
+    // console.log( top5Matches );
 
     const finalFilter = top5Matches.reduce( (cb, value, index) => { 
         let result = ' OR ';
@@ -128,6 +124,10 @@ export const getRecommendedSells = async ( likeList, userId ) => {
         return cb + result; 
     }, top5Matches[0] )
 
-    return performSearch( '', finalFilter ).then( response => ( { sells: [ ...response], negatedFilter: negatedFilter } ) ).catch( error => console.error( error ) );
+    console.log( top5Matches );
 
+    const top5MatchesDocIdOnly = top5Matches.map( value => value.docId );
+    console.log( top5MatchesDocIdOnly );
+
+    return performSearch( '', finalFilter ).then( response => ( { sells: [ ...response], negatedFilter: negatedFilter, orderedList: top5MatchesDocIdOnly } ) ).catch( error => console.error( error ) );
 }
