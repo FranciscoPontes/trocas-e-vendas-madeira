@@ -48,7 +48,7 @@ const RecipeReviewCard = props => {
   const call = phoneNumber => window.open("tel:" + phoneNumber);
   const redirectMail = mail => { window.location.href = "mailto:" + mail };
 
-  const boxListItems = [{"icon": callIcon(), "text": props.docData.phone_number, "click": call}, {"icon": mailIcon(), "text": props.docData.email, "click": redirectMail}];
+  const boxListItems = [ {"icon": callIcon(), "text": props.docData.phone_number, "click": call}, {"icon": mailIcon(), "text": props.docData.email, "click": redirectMail} ];
 
   const [ likeClickedTimeout, setLikeClickedTimeout ] = useState( false );
 
@@ -83,7 +83,7 @@ const RecipeReviewCard = props => {
     
   }, [likeClickedTimeout] )
 
-  const addFav = e => {
+  const addFav = () => {
     // prevent multiple quick clicks
     if ( likeClickedTimeout ) return;
 
@@ -95,14 +95,15 @@ const RecipeReviewCard = props => {
       result.push(props.value);
       cardLikeRef.current.classList.add("clicked");
 
-      docData["likeCount"] = parseInt( docData.likeCount + 1 );
+      docData["likeCount"] = parseInt( actualLikeCount + 1 );
 
       setActualLikeCount( actualLikeCount + 1 );
     }
     else if ( result && result.includes( "" + props.value + "" ) ) {
       result.splice( result.indexOf( props.value ), 1 );
       cardLikeRef.current.classList.remove("clicked");
-      docData["likeCount"] =  parseInt( docData.likeCount - 1 );
+
+      docData["likeCount"] =  parseInt( actualLikeCount - 1 );
 
       setActualLikeCount( actualLikeCount - 1 );
       
@@ -133,7 +134,7 @@ const RecipeReviewCard = props => {
       <CardActions disableSpacing>
         <React.Fragment>
           <IconButton aria-label="add to favorites"  
-            onClick={(e) => addFav(e) } 
+            onClick={ addFav } 
             className={ isMySells ? "favButton my-own-sells" : wasAlreadyLiked ? "favButton clicked" : "favButton"}
             ref={cardLikeRef}>
             <FavoriteIcon />

@@ -8,14 +8,17 @@ import './BoxList.css';
 const BoxList = props => (
     <React.Fragment>
         <List component="nav" aria-label="main mailbox folders" className={props.className}>
-            { props.items.map( ( item, index ) => (
-                <ListItem button key={index} onClick={() => item.click(item.text)}>
-                    <ListItemIcon>
-                        { item.icon }
-                    </ListItemIcon>
-                    <ListItemText primary={item.text} className="list-item-text"/>
-                </ListItem>
-            ) ) }
+            { props.items.map( ( item, index ) => {
+                if ( item.text === '' ) return;
+                return (
+                    <ListItem button key={index} onClick={() => item.click(item.text)}>
+                        <ListItemIcon>
+                            { item.icon }
+                        </ListItemIcon>
+                        <ListItemText primary={item.text} className="list-item-text"/>
+                    </ListItem>
+                );
+            } ) }
         </List> 
     </React.Fragment>
 );

@@ -11,6 +11,9 @@ import poweredByGoogle from '../images/powered_by_google_on_white.png';
 import AlgoliaSearch from '../UI/AlgoliaSearch/AlgoliaSearch';
 import { getRecommendedSells } from '../CustomPersonalization';
 import OtherSells from '../UI/DisplayOtherSells/DisplayOtherSells';
+import Tooltip from '@material-ui/core/Tooltip';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import IconButton from '@material-ui/core/IconButton';
 
 const HomePage = props => {
     
@@ -22,7 +25,9 @@ const HomePage = props => {
 
     const [ recommendedSells, setRecommendedSells ] = useState( null );
 
-    const [ negatedFilter, setNegatedFilter ] = useState( null );
+    const [ notRecommendedSells, setNotRecommendedSells ] = useState( null );
+
+    const [ isTooltipShowing, setIsTooltipShowing ] = useState( false );
 
     const redirect = path => {
         props.history.replace(path);
@@ -47,8 +52,8 @@ const HomePage = props => {
     }
 
     const orderList = ( orderedList, initialList ) => {
-        console.log( "Initial List" );
-        console.log( initialList );
+        // console.log( "Initial List" );
+        // console.log( initialList );
     
         let newList = [];
     
@@ -58,8 +63,8 @@ const HomePage = props => {
             }
         }
     
-        console.log( "Correctly ordered list ");
-        console.log( newList );
+        // console.log( "Correctly ordered list ");
+        // console.log( newList );
     
         setRecommendedSells( newList );
     }
@@ -67,10 +72,14 @@ const HomePage = props => {
     useEffect( () => { 
         if ( props.user && props.user !== 'ERROR' && props.likeList && !fetchWithPersonalization ) { 
             getRecommendedSells( props.likeList, props.user.id ).then( response => { 
+                // console.log( "This is what I got back from the recommendation algorithm" );
+                // console.log( response );
                 orderList( response.orderedList, response.sells );
-                setNegatedFilter( response.negatedFilter );
+                setNotRecommendedSells( response.notRecommendedSells );
                 setFetchWithPersonalization( true ); 
-                } );
+                // stop spinner on data fetch
+                props.fetchData(props.user.id, true);
+                } ).catch( error => console.error( error ) );
         }
     }, [ props.user, props.likeList, fetchWithPersonalization ] );
 
@@ -92,15 +101,9 @@ const HomePage = props => {
     useEffect( () => {
         if ( !props.user || props.user === 'ERROR' ) return;
         props.initFetch();
-        props.fetchData(props.user.id, true);
         props.getLikeList(props.user.id);
 
     }, [ props.user ] );
-
-    useEffect ( () => {
-        console.log( "New negated filter" ); 
-        console.log( negatedFilter ); 
-    }, [negatedFilter] )
 
     return (
         <React.Fragment>
@@ -128,16 +131,23 @@ const HomePage = props => {
                      </React.Fragment>
                     }
                 
-                { props.otherSells && props.user && !props.searching ? 
+                { props.user && !props.searching ? 
                     <React.Fragment>
-                    <TextDisplay text="Recomendados" headingType="h5"/>
+                    <div id="recommendation-container">
+                        <TextDisplay text="Recomendados" headingType="h5"/>
+                        <Tooltip title="Os recomendados são baseados nos seus favoritos" open={isTooltipShowing} 
+                            disableTouchListener disableHoverListener arrow >
+                            <IconButton onClick={ () => setIsTooltipShowing( !isTooltipShowing ) } id="button-recommendation-help">
+                                <HelpOutlineIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </div>
                     { recommendedSells ? 
-                        <React.Fragment>
-                            { generateSells() }
-                            <OtherSells filter={ negatedFilter } />
-                        </React.Fragment>
-                        : null }
-                        { console.log( recommendedSells ) }
+                    <React.Fragment>
+                        { generateSells() }
+                        <OtherSells notRecommendedSells={ notRecommendedSells } />
+                    </React.Fragment>
+                    : null }
                     </React.Fragment> 
                 : null }
             </div>
@@ -148,7 +158,7 @@ const HomePage = props => {
 const mapStateToProps = state => {
     return {
         user: state.user,
-        otherSells: state.otherSells,
+        // otherSells: state.otherSells,
         fetchDone: state.fetchDone,
         searching: state.searching,
         likeList: state.userLikes

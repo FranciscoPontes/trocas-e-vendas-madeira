@@ -68,3 +68,11 @@
 .load-more-icon:hover {
     background-color: #71a4d4;
 }
+
+#recommendation-container {
+    display: flex;
+}
+
+#button-recommendation-help {
+    padding-top: 0;
+}

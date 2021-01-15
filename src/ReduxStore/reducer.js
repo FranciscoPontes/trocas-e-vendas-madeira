@@ -4,7 +4,7 @@ import * as FirebaseAPI from '../Firebase/Firebase';
 const initState = {
     user: null,
     userSells: null,
-    otherSells: null,
+    // otherSells: null,
     fetchDone: true,
     userLikes: null,
     uploadDone: true,
@@ -42,7 +42,8 @@ export const deleteSell = ( docId, sells ) => {
 
 export const fetchOtherSells = ( uId, limit, likeList ) => {
     return dispatch => {
-        if ( !likeList ) FirebaseAPI.fetchAllData(uId, limit, likeList).then( response => dispatch({type: actionTypes.FETCH_OTHER_SELLS, data: response}) ).catch( error => console.error(error) );
+        // if ( !likeList ) FirebaseAPI.fetchAllData(uId, limit, likeList).then( response => dispatch({type: actionTypes.FETCH_OTHER_SELLS, data: response}) ).catch( error => console.error(error) );
+        if ( !likeList ) return dispatch( { type: actionTypes.FETCH_OTHER_SELLS } ); 
         else FirebaseAPI.fetchAllData(uId, limit, likeList).then( response => dispatch({type: actionTypes.FETCH_LIKED_SELLS, data: response}) ).catch( error => console.error(error) );
     }
 }
@@ -96,7 +97,7 @@ const reducer = (state = initState, action) => {
         case actionTypes.FETCH_OTHER_SELLS:
             return {
                 ...state,
-                otherSells: action.data,
+                // otherSells: action.data,
                 fetchDone: true
             }
         case actionTypes.UPDATE_DATA: 

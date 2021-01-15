@@ -71,7 +71,12 @@ export const getRecommendedSells = async ( likeList, userId ) => {
     top5Matches = [];
     const parsedLikeList = JSON.parse( likeList.likeList );
 
-    const sellsFetched = await performSearch( '', 'complete:false AND NOT userId:' + userId ).then( response => response ).catch( error => console.error( error ) );
+    const sellsFetched = await performSearch( '', 'complete:false AND NOT userId:' + userId ).then( response => response.map( sell => {
+        const copiedSell = { ...sell };
+        // no need to have this data
+        delete copiedSell["_highlightResult"];
+        return copiedSell;
+    }) ).catch( error => console.error( error ) );
     
     const likedSells = sellsFetched.filter( value => parsedLikeList.includes( value.docId ) );
 
@@ -109,8 +114,8 @@ export const getRecommendedSells = async ( likeList, userId ) => {
     // handle when length of returning array not 5
     addToTop5( likedSells, sellsFetchedNoLikes );
 
-    console.log( "After adding:" );
-    console.log( top5Matches );
+    // console.log( "After adding:" );
+    // console.log( top5Matches );
 
     const finalFilter = top5Matches.reduce( (cb, value, index) => { 
         let result = ' OR ';
@@ -128,5 +133,10 @@ export const getRecommendedSells = async ( likeList, userId ) => {
 
     const top5MatchesDocIdOnly = top5Matches.map( value => value.docId );
 
-    return performSearch( '', finalFilter ).then( response => ( { sells: [ ...response], negatedFilter: negatedFilter, orderedList: top5MatchesDocIdOnly } ) ).catch( error => console.error( error ) );
+    const notRecommendedSells = sellsFetched.filter( sell => !top5MatchesDocIdOnly.includes( sell.docId ) ); 
+
+    // console.log( "Not recommended sells" );
+    // console.log( notRecommendedSells );
+
+    return performSearch( '', finalFilter ).then( response => ( { sells: [ ...response], notRecommendedSells: notRecommendedSells, orderedList: top5MatchesDocIdOnly } ) ).catch( error => console.error( error ) );
 }
