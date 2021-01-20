@@ -44,9 +44,13 @@ const HomePage = props => {
     const informativeText = () => {
         return (
             <React.Fragment>
-                Nesta plataforma pode colocar anúncios de vendas dos seus produtos,
-                bem como ver anúncios de outras pessoas. O processo de venda ocorre externamente pela responsabilidades dos utilizadores.
-                <br/> <b>Dica de uso:</b> A qualquer momento pode clicar na bandeira do canto superior esquerdo para voltar à página inicial.
+                Nesta plataforma pode: 
+                    <ul>
+                        <li>Colocar anúncios de vendas dos seus produtos</li>
+                        <li>Ver anúncios de outras pessoas</li>
+                    </ul>
+                <b>Nota:</b> O processo de venda ocorre externamente pela responsabilidades dos utilizadores.
+                <br/><br/> <b>Dica de uso:</b> A qualquer momento pode clicar na bandeira no canto superior esquerdo para voltar à página inicial.
             </React.Fragment>
         );
     }
@@ -120,7 +124,7 @@ const HomePage = props => {
                                 <img src={poweredByGoogle} width="25px" alt="poweredByGoogle"/>
                             </div>
                         </div> 
-                        <TextDisplay text={informativeText()} headingType="h6"/>
+                        <TextDisplay text={informativeText()} headingType="body1"/>
                     </React.Fragment>
                     : <React.Fragment>
                         <div className="homepage-buttons">
@@ -135,12 +139,12 @@ const HomePage = props => {
                     <React.Fragment>
                     <div id="recommendation-container">
                         <TextDisplay text="Recomendados" headingType="h5"/>
-                        <Tooltip title="Os recomendados são baseados nos seus favoritos" open={isTooltipShowing} 
+                        {/* <Tooltip title="Os recomendados são baseados nos seus favoritos" open={isTooltipShowing} 
                             disableTouchListener disableHoverListener arrow >
                             <IconButton onClick={ () => setIsTooltipShowing( !isTooltipShowing ) } id="button-recommendation-help">
                                 <HelpOutlineIcon />
                             </IconButton>
-                        </Tooltip>
+                        </Tooltip> */}
                     </div>
                     { recommendedSells ? 
                     <React.Fragment>

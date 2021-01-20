@@ -145,7 +145,7 @@ const MySells = props => {
                                 color="primary"
                             />
                         }
-                        label="Completas"
+                        label="Mostrar completas"
                         className="switch-completas"
                     />
                     </div>
