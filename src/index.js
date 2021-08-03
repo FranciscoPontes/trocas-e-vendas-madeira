@@ -7,6 +7,7 @@ import {createStore, applyMiddleware, compose} from 'redux';
 import reducer from './ReduxStore/reducer';
 import thunk from 'redux-thunk';
 import {BrowserRouter} from 'react-router-dom';
+import * as serviceWorker from './serviceWorkerRegistration';
 
 const composeEnhancers = (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 
@@ -22,4 +23,6 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
+
+serviceWorker.register();
 
