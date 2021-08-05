@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Trocas e Vendas",
+  "name": "Publicações de Trocas e Vendas",
   "icons": [
     {
       "src": "favicon.png",
@@ -8,7 +8,7 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "logo_192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
