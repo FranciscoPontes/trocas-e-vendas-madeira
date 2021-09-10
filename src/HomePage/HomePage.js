@@ -7,13 +7,7 @@ import Card from "../UI/Card/Card";
 import Spinner from "../UI/Spinner";
 import * as actionTypes from "../ReduxStore/actionTypes";
 import TextDisplay from "../UI/TextDisplay";
-import poweredByGoogle from "../images/powered_by_google_on_white.png";
-import AlgoliaSearch from "../UI/AlgoliaSearch/AlgoliaSearch";
-import { getRecommendedSells } from "../CustomPersonalization";
 import OtherSells from "../UI/DisplayOtherSells/DisplayOtherSells";
-import Tooltip from "@material-ui/core/Tooltip";
-import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
-import IconButton from "@material-ui/core/IconButton";
 
 const HomePage = (props) => {
   const [cachedCredential, setCachedCredential] = useState(
@@ -29,8 +23,6 @@ const HomePage = (props) => {
 
   const [notRecommendedSells, setNotRecommendedSells] = useState(null);
 
-  const [isTooltipShowing, setIsTooltipShowing] = useState(false);
-
   const redirect = (path) => {
     props.history.replace(path);
   };
@@ -43,21 +35,6 @@ const HomePage = (props) => {
         <Card key={sell.docId} docData={sell} value={sell.docId} />
       ))}
     </div>
-  );
-
-  const informativeText = (
-    <React.Fragment>
-      Nesta plataforma pode:
-      <ul>
-        <li>Colocar anúncios de vendas dos seus produtos</li>
-        <li>Ver anúncios de outras pessoas</li>
-      </ul>
-      <b>Nota:</b> O processo de venda ocorre externamente pela
-      responsabilidades dos utilizadores.
-      <br />
-      <br /> <b>Dica de uso:</b> A qualquer momento pode clicar na bandeira no
-      canto superior esquerdo para voltar à página inicial.
-    </React.Fragment>
   );
 
   const orderList = (orderedList, initialList) => {
@@ -88,17 +65,7 @@ const HomePage = (props) => {
       props.likeList &&
       !fetchWithPersonalization
     ) {
-      getRecommendedSells(props.likeList, props.user.id)
-        .then((response) => {
-          // console.log( "This is what I got back from the recommendation algorithm" );
-          // console.log( response );
-          orderList(response.orderedList, response.sells);
-          setNotRecommendedSells(response.notRecommendedSells);
-          setFetchWithPersonalization(true);
-          // stop spinner on data fetch
-          props.fetchData(props.user.id, true);
-        })
-        .catch((error) => console.error(error));
+      props.fetchData(props.user.id, true);
     }
   }, [props.user, props.likeList, fetchWithPersonalization]);
 
@@ -146,10 +113,8 @@ const HomePage = (props) => {
                     click={loginButtonClick}
                   />
                 ) : null}
-                <img src={poweredByGoogle} width="25px" alt="poweredByGoogle" />
               </div>
             </div>
-            <TextDisplay text={informativeText} headingType="body1" />
           </React.Fragment>
         ) : (
           <React.Fragment>
@@ -165,7 +130,6 @@ const HomePage = (props) => {
                 click={() => redirect("/minhas-vendas")}
               />
             </div>
-            <AlgoliaSearch />
           </React.Fragment>
         )}
 
@@ -173,12 +137,6 @@ const HomePage = (props) => {
           <React.Fragment>
             <div id="recommendation-container">
               <TextDisplay text="Recomendados" headingType="h5" />
-              {/* <Tooltip title="Os recomendados são baseados nos seus favoritos" open={isTooltipShowing} 
-                            disableTouchListener disableHoverListener arrow >
-                            <IconButton onClick={ () => setIsTooltipShowing( !isTooltipShowing ) } id="button-recommendation-help">
-                                <HelpOutlineIcon />
-                            </IconButton>
-                        </Tooltip> */}
             </div>
             {recommendedSells ? (
               <React.Fragment>
