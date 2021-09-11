@@ -184,10 +184,21 @@ const NovaVenda = (props) => {
           }
         />
         <TextField
+          id="description"
+          label="Descrição (opcional)"
+          variant="outlined"
+          className="input"
+          multiline
+          rows={4}
+          onChange={(event) =>
+            setInput({ ...input, description: event.target.value })
+          }
+        />
+        <TextField
           id="preco"
           label="Preço"
           variant="outlined"
-          className="input"
+          className="input half-width"
           type="number"
           value={input.price}
           onChange={(event) =>
@@ -197,36 +208,34 @@ const NovaVenda = (props) => {
             startAdornment: <InputAdornment position="start">€</InputAdornment>,
           }}
         />
-        <TextField
-          id="description"
-          label="Descrição (opcional)"
-          variant="outlined"
-          className="input"
-          multiline
-          rows={7}
-          onChange={(event) =>
-            setInput({ ...input, description: event.target.value })
-          }
-        />
-        <TextField
-          id="phone_number"
-          label="Contacto (opcional)"
-          variant="outlined"
-          className="input"
-          onChange={(event) =>
-            setInput({ ...input, phone_number: event.target.value })
-          }
-        />
-        <TextField
-          id="email"
-          label="Email"
-          variant="outlined"
-          className="input"
-          onChange={(event) =>
-            setInput({ ...input, email: event.target.value })
-          }
-          value={input.email}
-        />
+        <div
+          style={{
+            display: "flex",
+          }}
+        >
+          <TextField
+            style={{
+              marginRight: "5px",
+            }}
+            id="phone_number"
+            label="Contacto (opcional)"
+            variant="outlined"
+            className="input half-width"
+            onChange={(event) =>
+              setInput({ ...input, phone_number: event.target.value })
+            }
+          />
+          <TextField
+            id="email"
+            label="Email"
+            variant="outlined"
+            className="input half-width"
+            onChange={(event) =>
+              setInput({ ...input, email: event.target.value })
+            }
+            value={input.email}
+          />
+        </div>
 
         <input
           ref={fileInputRef}

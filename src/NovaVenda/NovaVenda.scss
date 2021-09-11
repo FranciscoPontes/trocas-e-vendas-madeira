@@ -1,75 +1,79 @@
-@import '../App.scss';
+@import "../App.scss";
 
 .new-sell {
-    display: flex;
-    flex-flow: column;
-    width: 70%;
-    margin: auto;
+  display: flex;
+  flex-flow: column;
+  width: 70%;
+  margin: auto;
 }
 
 .new-sell .input {
-    margin: 5px 0px 5px 0px;
+  margin: 5px 0px 5px 0px;
+}
+
+.new-sell .input.half-width {
+  width: 50%;
 }
 
 .new-sell input {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 #contained-button-file {
-    display: none;
+  display: none;
 }
 
 .upload-container {
-    margin-top: 10px;
-    width: fit-content;
-    height: 30px;
+  margin-top: 10px;
+  width: fit-content;
+  height: 30px;
 }
 
 .upload-container .upload-button {
-    background-color: #a8c0d6;
-    color: #fbfbfb;
-    padding: 2px 8px 2px 4px;
-    height: inherit;
+  background-color: #a8c0d6;
+  color: #fbfbfb;
+  padding: 2px 8px 2px 4px;
+  height: inherit;
 }
 
 .upload-container .upload-button svg {
-    color: #fbfbfb;
+  color: #fbfbfb;
 }
 
 .upload-container .upload-button .MuiButton-startIcon {
-    margin: 0;
+  margin: 0;
 }
 
 .upload-button .upload-photo-icon {
-    padding: 4px;
+  padding: 4px;
 }
 
 .upload-container .upload-button:hover {
-    background-color: #81a5c7;
+  background-color: #81a5c7;
 }
 
 .new-sell .new-sell-button {
-    width: fit-content;
-    margin: auto;
-    margin-top: 20px;
-    margin-bottom: 30px;
-    background-color: #1e5e9b;
+  width: fit-content;
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  background-color: #1e5e9b;
 }
 
 .new-sell .new-sell-button:hover {
-    background-color: #71a4d4;
+  background-color: #71a4d4;
 }
 
 .heading {
-    margin-top: 20px;
-    text-align: center;
+  margin-top: 20px;
+  text-align: center;
 }
 
 .heading h4 {
-    font-size: $font-size-big;
+  font-size: $font-size-big;
 }
 
 .new-sell .spinner-my-sells {
-    margin: auto;
-    margin-bottom: 30px !important;
+  margin: auto;
+  margin-bottom: 30px !important;
 }
