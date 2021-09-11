@@ -5,4 +5,4 @@ I took the chance to pratice my React skills, and experienced other software lik
 
 Recently, I upgraded the project to a PWA, which means you can use it on your desktop or android!
 
-Project link: <a href="https://cp-project-18016.web.app/" target="_blank">Trocas e Vendas</a>
+Project link: <a href="https://cp-project-18016.web.app/" target="blank">Trocas e Vendas</a>
