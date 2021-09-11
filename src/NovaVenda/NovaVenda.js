@@ -176,6 +176,7 @@ const NovaVenda = (props) => {
         <TextField
           id="title"
           label="Titulo da venda"
+          autoFocus
           variant="outlined"
           className="input"
           onChange={(event) =>

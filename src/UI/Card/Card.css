@@ -1,48 +1,51 @@
 .card {
-    width: 300px;
-    margin: 0px 15px 15px 15px;
-    box-shadow: 5px -5px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 0px 3px 0px rgba(0,0,0,0.12) !important; 
+  width: 300px;
+  margin: 0px 15px 15px 15px;
+  box-shadow: 7px 5px 6px 4px rgb(0 0 0 / 0.2),
+    0px 1px 1px 0px rgb(0 0 0 / 0.14), 0px 0px 3px 0px rgb(0 0 0 / 0.12) !important;
+  background-color: #efeeee !important;
 }
 
 .card.complete {
-    background-color: rgb(159 208 159);
+  background-color: rgb(159 208 159) !important;
 }
 
 .settings-region {
-    display: flex;
-    flex-flow: column;
+  display: flex;
+  flex-flow: column;
 }
 
 .collapse-style .MuiCardContent-root {
-    padding-top: 0px;
+  padding-top: 0px;
 }
 
 .collapse-style .MuiListItemIcon-root {
-    min-width: fit-content;
-    margin-right: 5%;
+  min-width: fit-content;
+  margin-right: 5%;
 }
 
 .delete-icon {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .delete-icon:hover {
-    color: red;
+  color: red;
 }
 
-.favButton svg{
-    fill: currentColor;
-    pointer-events: all;
-    cursor: pointer;
+.favButton svg {
+  fill: currentColor;
+  pointer-events: all;
+  cursor: pointer;
 }
 
 .favButton.clicked svg {
-    fill: red;
-    pointer-events: none;
-    cursor: default;
+  fill: red;
+  pointer-events: none;
+  cursor: default;
 }
 
-.favButton.my-own-sells, .favButton.my-own-sells svg {
-    pointer-events: none;
-    cursor: default;
-} 
+.favButton.my-own-sells,
+.favButton.my-own-sells svg {
+  pointer-events: none;
+  cursor: default;
+}
