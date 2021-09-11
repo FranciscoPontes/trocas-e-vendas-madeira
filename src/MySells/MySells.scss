@@ -1,107 +1,110 @@
-@import '../App.scss';
+@import "../App.scss";
 
 .my-sells {
-    width: 80%;
-    margin: auto;
+  width: 80%;
+  margin: auto;
+  margin-top: 10px;
+  text-align: center;
 }
 .preview-images {
-    margin: auto;
-    width: fit-content;
-    margin-top: 10px;
+  margin: auto;
+  width: fit-content;
+  margin-top: 10px;
 }
 
 .sell-display .top-row .delete-icon {
-    float: right;
-    cursor: pointer;
+  float: right;
+  cursor: pointer;
 }
 
 .sells-content {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .heading-display {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    text-align: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .text-and-switch {
-    display: flex;
-    justify-content: center;
-    width: 60%;
-    margin: auto;
+  display: flex;
+  justify-content: center;
+  width: 60%;
+  margin: auto;
 }
 
 .toggle-complete-sells {
-    position: absolute;
-    right: 2%;
+  position: absolute;
+  right: 2%;
 }
 
 .MuiSwitch-switchBase.MuiSwitch-colorPrimary.Mui-checked {
-    color: #1e5e9b;
+  color: #1e5e9b;
 }
 
 .toggle-complete-sells .MuiSwitch-switchBase {
-    color: #7191af;
+  color: #7191af;
 }
 
 .nav-menu {
-    margin-bottom: 20px;
-    text-align: center;
-    width: 100%;
+  margin-bottom: 20px;
+  text-align: center;
+  width: 100%;
 }
 
 .heading-display .no-data-text-display {
-    margin-top: 30px;
+  margin-top: 30px;
 }
 
 .switch-completas span.MuiFormControlLabel-label {
-    font-size: $font-size-small;
+  font-size: $font-size-small;
 }
 
-.snackbar-my-sells, .snackbar-my-sells div  {
-    background-color: $blue-color-flag !important;
-    color: white;
-    border-radius: 10px;
-    max-width: 60%;
+.snackbar-my-sells,
+.snackbar-my-sells div {
+  background-color: $blue-color-flag !important;
+  color: white;
+  border-radius: 10px;
+  max-width: 60%;
 }
 
 .snackbar-my-sells div {
-    max-width: 100%;
+  max-width: 100%;
 }
 
 .mobile-nav {
-    z-index: auto;
-    background: none;
+  z-index: auto;
+  background: none;
 }
 
-.mobile-nav button.Mui-selected{
-    color: $blue-color-flag;
+.mobile-nav button.Mui-selected {
+  color: $blue-color-flag;
 }
 
-@media ( max-width: 650px ) {
-    .toggle-complete-sells {
-        margin-bottom: 10px;
-    }
+@media (max-width: 650px) {
+  .toggle-complete-sells {
+    margin-bottom: 10px;
+  }
 
-    .mobile-nav {
-        z-index: 999;
-        visibility: visible;
-        position: fixed;
-        width: 100%;
-        left: 0;
-        bottom: 0;
-        height: 8vh;    
-        background-color: #dfecfa !important;
-    }
+  .mobile-nav {
+    z-index: 999;
+    visibility: visible;
+    position: fixed;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    height: 8vh;
+    background-color: #dfecfa !important;
+  }
 
-    .sells-content {
-        margin-bottom: 8vh;
-    }
-    
-    .heading-display {
-        margin-bottom: 50px;
-    }
+  .sells-content {
+    margin-bottom: 8vh;
+  }
+
+  .heading-display {
+    margin-bottom: 50px;
+  }
 }

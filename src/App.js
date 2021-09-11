@@ -4,11 +4,13 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import NovaVenda from "./NovaVenda/NovaVenda";
 import { connect } from "react-redux";
 import MySells from "./MySells/MySells";
-import { LeftNavigationBar } from "./LeftNavigationBar/LeftNavigationBar";
+import LeftNavigationBar from "./LeftNavigationBar/LeftNavigationBar";
 
 export const routePaths = {
+  HOME: "/",
   NOVA_VENDA: "/nova-venda",
   MINHAS_VENDAS: "/minhas-vendas",
+  FAVORITOS: "/favoritos",
 };
 
 const App = (props) => {
@@ -17,14 +19,21 @@ const App = (props) => {
       <NavBar />
       <LeftNavigationBar props={props} />
       <Switch>
-        <Route path="/" exact component={HomePage} />
+        <Route path={routePaths.HOME} exact component={HomePage} />
         {props.user ? (
           <Switch>
-            <Route path="/nova-venda" component={NovaVenda} />
-            <Route path="/minhas-vendas" component={MySells} />
+            <Route path={routePaths.NOVA_VENDA} component={NovaVenda} />
+            <Route
+              path={routePaths.MINHAS_VENDAS}
+              render={(props) => <MySells {...props} currentTab={0} />}
+            />
+            <Route
+              path={routePaths.FAVORITOS}
+              render={(props) => <MySells {...props} currentTab={1} />}
+            />
           </Switch>
         ) : (
-          <Redirect to="/" />
+          <Redirect to={routePaths.HOME} />
         )}
       </Switch>
     </div>

@@ -8,6 +8,7 @@ import Spinner from "../UI/Spinner";
 import * as actionTypes from "../ReduxStore/actionTypes";
 import TextDisplay from "../UI/TextDisplay";
 import OtherSells from "../UI/DisplayOtherSells/DisplayOtherSells";
+import { routePaths } from "../App";
 
 const HomePage = (props) => {
   const [cachedCredential, setCachedCredential] = useState(
@@ -36,27 +37,6 @@ const HomePage = (props) => {
       ))}
     </div>
   );
-
-  const orderList = (orderedList, initialList) => {
-    // console.log( "Initial List" );
-    // console.log( initialList );
-
-    let newList = [];
-
-    if (orderedList) {
-      for (let i in orderedList) {
-        newList[i] =
-          initialList[
-            initialList.findIndex((value) => value.docId === orderedList[i])
-          ];
-      }
-    }
-
-    // console.log( "Correctly ordered list ");
-    // console.log( newList );
-
-    setRecommendedSells(newList);
-  };
 
   useEffect(() => {
     if (
@@ -116,22 +96,7 @@ const HomePage = (props) => {
               </div>
             </div>
           </React.Fragment>
-        ) : (
-          <React.Fragment>
-            <div className="homepage-buttons">
-              <Button
-                text="Vender"
-                className="buttons blue"
-                click={() => redirect("/nova-venda")}
-              />
-              <Button
-                text="Minha área"
-                className="buttons yellow"
-                click={() => redirect("/minhas-vendas")}
-              />
-            </div>
-          </React.Fragment>
-        )}
+        ) : null}
 
         {props.user && !props.searching ? (
           <React.Fragment>
