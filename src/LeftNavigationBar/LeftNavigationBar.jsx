@@ -10,11 +10,13 @@ import ListItemText from "@material-ui/core/ListItemText";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import FolderIcon from "@material-ui/icons/Folder";
 import React from "react";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { useDispatch, useSelector } from "react-redux";
 import { TOGGLE_LEFT_PANEL } from "../ReduxStore/actionTypes";
 import HomeIcon from "@material-ui/icons/Home";
 import { withRouter } from "react-router";
 import { routePaths } from "../App";
+import { logout } from "../ReduxStore/reducer";
 
 const LeftNavigationBar = (props) => {
   const useStyles = makeStyles({
@@ -29,6 +31,9 @@ const LeftNavigationBar = (props) => {
   const redirect = (path) => {
     props.history.replace(path);
   };
+  const classes = useStyles();
+  const show = useSelector((state) => state.showLeftPanel);
+  const dispatch = useDispatch();
 
   const linksMetadata = [
     {
@@ -46,11 +51,13 @@ const LeftNavigationBar = (props) => {
       icon: <FavoriteIcon />,
       onClickHandler: () => redirect(routePaths.FAVORITOS),
     },
+    {
+      title: "Terminar sessão",
+      icon: <ExitToAppIcon />,
+      onClickHandler: () => dispatch(logout()),
+    },
   ];
 
-  const classes = useStyles();
-  const show = useSelector((state) => state.showLeftPanel);
-  const dispatch = useDispatch();
   const list = (anchor) => (
     <div
       className={clsx(classes.list, {

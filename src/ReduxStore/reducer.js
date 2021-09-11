@@ -1,5 +1,6 @@
 import * as actionTypes from "./actionTypes";
 import * as FirebaseAPI from "../Firebase/Firebase";
+import { LocalCafe } from "@material-ui/icons";
 
 const initState = {
   user: null,
@@ -23,10 +24,15 @@ export const tryLogin = (redirected = false) => {
   };
 };
 
-export const logout = () => (dispatch) =>
-  FirebaseAPI.logout()
-    .then(() => dispatch({ type: actionTypes.LOGOUT_USER }))
+export const logout = () => (dispatch) => {
+  localStorage.clear();
+  return FirebaseAPI.logout()
+    .then(() => {
+      console.log("Successfully logged out!");
+      dispatch({ type: actionTypes.LOGOUT_USER });
+    })
     .catch((error) => console.error(error));
+};
 
 export const getUserSells = (uId) => async (dispatch) => {
   await FirebaseAPI.fetchUserData(uId)
