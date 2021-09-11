@@ -7,7 +7,7 @@ const CustomButton = (props) => (
     color={props.color}
     className={props.className}
     onClick={props?.click}
-    size="large"
+    size={props.size || "large"}
   >
     {props.text}
   </Button>

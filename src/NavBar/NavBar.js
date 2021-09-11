@@ -1,8 +1,5 @@
 import React, { Fragment, useState } from "react";
 import "./NavBar.css";
-import Flag from "../images/madeira-flag.png";
-import Chip from "@material-ui/core/Chip";
-import Avatar from "@material-ui/core/Avatar";
 import { connect, useDispatch } from "react-redux";
 import { NavLink } from "react-router-dom";
 import TextDisplay from "../UI/TextDisplay";
@@ -54,20 +51,9 @@ const NavBar = (props) => {
                   text="Vender"
                   className="navbar buttons blue"
                   click={() => props.history.replace(routePaths.NOVA_VENDA)}
+                  size={window.innerWidth <= 450 ? "small" : null}
                 />
               ) : null}
-              <Chip
-                className="acc-chip"
-                avatar={
-                  <Avatar
-                    alt={props.user.name}
-                    src={props.user.photo}
-                    className="acc-ava"
-                  />
-                }
-                // label={props.user.name}
-                onDelete={() => setShowConfirmation(true)}
-              />
             </Fragment>
           ) : null}
         </div>

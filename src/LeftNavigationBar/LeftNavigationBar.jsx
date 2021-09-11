@@ -17,6 +17,8 @@ import HomeIcon from "@material-ui/icons/Home";
 import { withRouter } from "react-router";
 import { routePaths } from "../App";
 import { logout } from "../ReduxStore/reducer";
+import Chip from "@material-ui/core/Chip";
+import Avatar from "@material-ui/core/Avatar";
 
 const LeftNavigationBar = (props) => {
   const useStyles = makeStyles({
@@ -33,6 +35,7 @@ const LeftNavigationBar = (props) => {
   };
   const classes = useStyles();
   const show = useSelector((state) => state.showLeftPanel);
+  const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   const linksMetadata = [
@@ -40,21 +43,28 @@ const LeftNavigationBar = (props) => {
       title: "Página Inicial",
       icon: <HomeIcon />,
       onClickHandler: () => redirect(routePaths.HOME),
+      show: true,
     },
     {
       title: "Minhas Vendas",
       icon: <FolderIcon />,
       onClickHandler: () => redirect(routePaths.MINHAS_VENDAS),
+      show: true,
     },
     {
       title: "Favoritos",
       icon: <FavoriteIcon />,
       onClickHandler: () => redirect(routePaths.FAVORITOS),
+      show: true,
     },
     {
       title: "Terminar sessão",
-      icon: <ExitToAppIcon />,
-      onClickHandler: () => dispatch(logout()),
+      icon: <Avatar alt={user?.name} src={user?.photo} className="acc-ava" />,
+      onClickHandler: () => {
+        localStorage.clear();
+        dispatch(logout());
+      },
+      show: user !== null,
     },
   ];
 
@@ -68,12 +78,14 @@ const LeftNavigationBar = (props) => {
       onKeyDown={() => dispatch({ type: TOGGLE_LEFT_PANEL })}
     >
       <List>
-        {linksMetadata.map((link) => (
-          <ListItem button onClick={link.onClickHandler} key={link.title}>
-            <ListItemIcon>{link.icon}</ListItemIcon>
-            <ListItemText primary={link.title} />
-          </ListItem>
-        ))}
+        {linksMetadata
+          .filter((link) => link?.show)
+          .map((link) => (
+            <ListItem button onClick={link.onClickHandler} key={link.title}>
+              <ListItemIcon>{link.icon}</ListItemIcon>
+              <ListItemText primary={link.title} />
+            </ListItem>
+          ))}
       </List>
     </div>
   );
