@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "../UI/Button";
 import "./HomePage.css";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import * as ReducerAPI from "../ReduxStore/reducer";
 import Card from "../UI/Card/Card";
 import Spinner from "../UI/Spinner";
@@ -17,40 +17,32 @@ const HomePage = (props) => {
 
   const [autoLoginStarted, setAutoLoginStarted] = useState(false);
 
-  const [fetchWithPersonalization, setFetchWithPersonalization] =
-    useState(false);
-
-  const [recommendedSells, setRecommendedSells] = useState(null);
-
-  const [notRecommendedSells, setNotRecommendedSells] = useState(null);
-
-  const redirect = (path) => {
-    props.history.replace(path);
-  };
-
   const loginButtonClick = () => props.login();
 
-  const generateSells = () => (
+  const otherSells = useSelector((state) => state.otherSells);
+
+  const generateSells = (
     <div className="sells-content">
-      {recommendedSells.map((sell) => (
-        <Card key={sell.docId} docData={sell} value={sell.docId} />
-      ))}
+      {otherSells
+        ? Object.keys(otherSells).map((sell) => (
+            <Card
+              key={otherSells[sell].docId}
+              docData={otherSells[sell]}
+              value={otherSells[sell].docId}
+            />
+          ))
+        : null}
     </div>
   );
 
+  /**
+   *
+   * Handles login functionality.
+   */
   useEffect(() => {
-    if (
-      props.user &&
-      props.user !== "ERROR" &&
-      props.likeList &&
-      !fetchWithPersonalization
-    ) {
-      props.fetchData(props.user.id, true);
-    }
-  }, [props.user, props.likeList, fetchWithPersonalization]);
-
-  useEffect(() => {
+    // auto login
     if (cachedCredential && !props.user) loginButtonClick();
+    // manual login
     else if (
       !cachedCredential &&
       !props.user &&
@@ -58,19 +50,35 @@ const HomePage = (props) => {
     ) {
       props.login(true);
       setAutoLoginStarted(true);
-    } else if (props.user === "ERROR") {
+    }
+    // login failed
+    else if (props.user === "ERROR") {
       console.log("Error trying auto login");
       setCachedCredential(false);
       sessionStorage.removeItem("cp-persuasive-user");
       props.clearUser();
-    } else if (autoLoginStarted && props.user) setAutoLoginStarted(false);
-  });
+    }
+    // login done
+    else if (autoLoginStarted && props.user) setAutoLoginStarted(false);
+  }, [props, cachedCredential, autoLoginStarted]);
 
+  /**
+   * Get user like list
+   */
   useEffect(() => {
     if (!props.user || props.user === "ERROR") return;
     props.initFetch();
     props.getLikeList(props.user.id);
   }, [props.user]);
+
+  /**
+   * Fetch data (after likeList was fetched)
+   */
+  useEffect(() => {
+    if (props.user && props.user !== "ERROR" && props.likeList) {
+      props.fetchData(props.user.id, true);
+    }
+  }, [props.user, props.likeList]);
 
   return (
     <React.Fragment>
@@ -101,14 +109,9 @@ const HomePage = (props) => {
         {props.user && !props.searching ? (
           <React.Fragment>
             <div id="recommendation-container">
-              <TextDisplay text="Recomendados" headingType="h5" />
+              <TextDisplay text="Produtos" headingType="h5" />
             </div>
-            {recommendedSells ? (
-              <React.Fragment>
-                {generateSells()}
-                <OtherSells notRecommendedSells={notRecommendedSells} />
-              </React.Fragment>
-            ) : null}
+            {generateSells}
           </React.Fragment>
         ) : null}
       </div>
@@ -119,7 +122,6 @@ const HomePage = (props) => {
 const mapStateToProps = (state) => {
   return {
     user: state.user,
-    // otherSells: state.otherSells,
     fetchDone: state.fetchDone,
     searching: state.searching,
     likeList: state.userLikes,
