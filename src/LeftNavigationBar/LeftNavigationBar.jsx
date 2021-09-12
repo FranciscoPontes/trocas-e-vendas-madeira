@@ -61,7 +61,6 @@ const LeftNavigationBar = (props) => {
       title: "Terminar sessão",
       icon: <Avatar alt={user?.name} src={user?.photo} className="acc-ava" />,
       onClickHandler: () => {
-        localStorage.clear();
         dispatch(logout());
       },
       show: user !== null,

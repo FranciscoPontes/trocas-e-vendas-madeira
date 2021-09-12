@@ -25,7 +25,7 @@ export const tryLogin = (redirected = false) => {
 };
 
 export const logout = () => (dispatch) => {
-  localStorage.clear();
+  sessionStorage.clear();
   return FirebaseAPI.logout()
     .then(() => {
       console.log("Successfully logged out!");

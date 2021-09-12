@@ -10,11 +10,9 @@ import TextDisplay from "../UI/TextDisplay";
 import OtherSells from "../UI/DisplayOtherSells/DisplayOtherSells";
 import { routePaths } from "../App";
 
-const HomePage = (props) => {
-  const [cachedCredential, setCachedCredential] = useState(
-    sessionStorage.getItem("cp-persuasive-user")
-  );
+const getCredential = () => sessionStorage.getItem("cp-persuasive-user");
 
+const HomePage = (props) => {
   const [autoLoginStarted, setAutoLoginStarted] = useState(false);
 
   const loginButtonClick = () => props.login();
@@ -40,11 +38,11 @@ const HomePage = (props) => {
    * Handles login functionality.
    */
   useEffect(() => {
-    // auto login
-    if (cachedCredential && !props.user) loginButtonClick();
+    // auto login - credential remembered via sessionStorage
+    if (getCredential() && !props.user) loginButtonClick();
     // manual login
     else if (
-      !cachedCredential &&
+      !getCredential() &&
       !props.user &&
       sessionStorage.getItem("login-init") === "true"
     ) {
@@ -54,13 +52,12 @@ const HomePage = (props) => {
     // login failed
     else if (props.user === "ERROR") {
       console.log("Error trying auto login");
-      setCachedCredential(false);
       sessionStorage.removeItem("cp-persuasive-user");
       props.clearUser();
     }
     // login done
     else if (autoLoginStarted && props.user) setAutoLoginStarted(false);
-  }, [props, cachedCredential, autoLoginStarted]);
+  }, [props, getCredential(), autoLoginStarted]);
 
   /**
    * Get user like list
@@ -84,7 +81,7 @@ const HomePage = (props) => {
     <React.Fragment>
       <div className="homepage-content">
         {!props.fetchDone ||
-        (cachedCredential && !props.user && props.user !== "ERROR") ||
+        (getCredential() && !props.user && props.user !== "ERROR") ||
         autoLoginStarted ? (
           <Spinner />
         ) : null}
@@ -93,7 +90,7 @@ const HomePage = (props) => {
           <React.Fragment>
             <div className="homepage-buttons">
               <div className="login-display">
-                {!cachedCredential && !autoLoginStarted ? (
+                {!getCredential() && !autoLoginStarted ? (
                   <Button
                     color="primary"
                     text="Login"
