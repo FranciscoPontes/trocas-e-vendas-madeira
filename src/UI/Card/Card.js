@@ -18,7 +18,7 @@ import CallIcon from "@material-ui/icons/Call";
 import MailIcon from "@material-ui/icons/Mail";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import DoneOutlineIcon from "@material-ui/icons/DoneOutline";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import * as ReducerAPI from "../../ReduxStore/reducer";
 
 const useStyles = makeStyles((theme) => ({
@@ -26,22 +26,32 @@ const useStyles = makeStyles((theme) => ({
     transform: "rotate(0deg)",
     marginLeft: "auto",
     // transition: theme.transitions.create('transform', {
-    //   duration: theme.transitions.duration.shortest,
-    // }),
-  },
-  expandOpen: {
-    transform: "rotate(180deg)",
-  },
-}));
+      //   duration: theme.transitions.duration.shortest,
+      // }),
+    },
+    expandOpen: {
+      transform: "rotate(180deg)",
+    },
+  }));
+  
+  const RecipeReviewCard = (props) => {
 
-const RecipeReviewCard = (props) => {
-  const classes = useStyles();
-  const [expanded, setExpanded] = useState(false);
+    const userLikes = useState(state => state.userLikes)
+    const loggedUserId = useState(state => state.loggedUserId)
 
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
+    const dispatch = useDispatch()
 
+    const updateLikeCount = (uId, docId, data, likeList) => {
+      dispatch(ReducerAPI.updateLikeCount(uId, docId, data, likeList))
+    }
+
+    const classes = useStyles();
+    const [expanded, setExpanded] = useState(false);
+    
+    const handleExpandClick = () => {
+      setExpanded(!expanded);
+    };
+    
   const callIcon = () => <CallIcon />;
   const mailIcon = () => <MailIcon />;
 
@@ -62,8 +72,8 @@ const RecipeReviewCard = (props) => {
   );
 
   const [wasAlreadyLiked] = useState(
-    props.userLikes.likeList &&
-      props.userLikes.likeList.includes("" + props.value + "")
+    userLikes.likeList &&
+      userLikes.likeList.includes("" + props.value + "")
   );
 
   const cardLikeRef = useRef();
@@ -80,8 +90,8 @@ const RecipeReviewCard = (props) => {
       return size;
     };
     let result;
-    if (Object.size(props.userLikes) > 0)
-      result = JSON.parse(props.userLikes.likeList);
+    if (Object.size(userLikes) > 0)
+      result = JSON.parse(userLikes.likeList);
     else result = [];
     return result;
   };
@@ -119,9 +129,9 @@ const RecipeReviewCard = (props) => {
     } else result = [props.value];
     let actualLikeList = {};
     actualLikeList["likeList"] = JSON.stringify(result);
-
-    props.updateLikeCount(
-      props.loggedUserId,
+    
+    updateLikeCount(
+      loggedUserId,
       props.value,
       docData,
       actualLikeList
@@ -152,7 +162,7 @@ const RecipeReviewCard = (props) => {
       />
       <CardContent>
         <Typography variant="body2" color="textSecondary" component="p">
-          <b>{props.docData.title}</b>
+          <b id="card-title">{props.docData.title}</b>
           <br /> {props.docData.price + " €"} <br />
           <br />
           {props.docData.description
@@ -209,19 +219,5 @@ const RecipeReviewCard = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    userLikes: state.userLikes,
-    otherSells: state.otherSells,
-    loggedUserId: state.user.id,
-  };
-};
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateLikeCount: (uId, docId, data, likeList) =>
-      dispatch(ReducerAPI.updateLikeCount(uId, docId, data, likeList)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(RecipeReviewCard);
+export default RecipeReviewCard;

@@ -8,6 +8,7 @@ const CustomButton = (props) => (
     className={props.className}
     onClick={props?.click}
     size={props.size || "large"}
+    id="custom-button-id"
   >
     {props.text}
   </Button>
