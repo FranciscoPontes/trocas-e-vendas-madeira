@@ -18,8 +18,10 @@ import CallIcon from "@material-ui/icons/Call";
 import MailIcon from "@material-ui/icons/Mail";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import DoneOutlineIcon from "@material-ui/icons/DoneOutline";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import * as ReducerAPI from "../../ReduxStore/reducer";
+import { withErrorBoundary } from "react-error-boundary";
+import { ErrorBoundaryFallback } from "../ErrorBoundaryFallback";
 
 const useStyles = makeStyles((theme) => ({
   expand: {
@@ -36,8 +38,8 @@ const useStyles = makeStyles((theme) => ({
   
   const RecipeReviewCard = (props) => {
 
-    const userLikes = useState(state => state.userLikes)
-    const loggedUserId = useState(state => state.loggedUserId)
+    const userLikes = useSelector(state => state.userLikes)
+    const loggedUserId = useSelector(state => state.loggedUserId)
 
     const dispatch = useDispatch()
 
@@ -138,6 +140,10 @@ const useStyles = makeStyles((theme) => ({
     );
   };
 
+  useEffect(() => {
+    throw new Error('testing error boundary')
+  }, [])
+
   return (
     <Card
       className={props.docData.complete === "true" ? "card complete" : "card"}
@@ -220,4 +226,6 @@ const useStyles = makeStyles((theme) => ({
 };
 
 
-export default RecipeReviewCard;
+export default withErrorBoundary(RecipeReviewCard, {
+  FallbackComponent: ErrorBoundaryFallback,
+});

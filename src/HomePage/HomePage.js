@@ -7,12 +7,11 @@ import Card from "../UI/Card/Card";
 import Spinner from "../UI/Spinner";
 import * as actionTypes from "../ReduxStore/actionTypes";
 import TextDisplay from "../UI/TextDisplay";
-import OtherSells from "../UI/DisplayOtherSells/DisplayOtherSells";
-import { routePaths } from "../App";
 
 const getCredential = () => sessionStorage.getItem("cp-persuasive-user");
 
 const HomePage = (props) => {
+  const {user, likeList} = props;
   const [autoLoginStarted, setAutoLoginStarted] = useState(false);
 
   const loginButtonClick = () => props.login();
@@ -39,54 +38,54 @@ const HomePage = (props) => {
    */
   useEffect(() => {
     // auto login - credential remembered via sessionStorage
-    if (getCredential() && !props.user) loginButtonClick();
+    if (getCredential() && !user) loginButtonClick();
     // manual login
     else if (
       !getCredential() &&
-      !props.user &&
+      !user &&
       sessionStorage.getItem("login-init") === "true"
     ) {
       props.login(true);
       setAutoLoginStarted(true);
     }
     // login failed
-    else if (props.user === "ERROR") {
+    else if (user === "ERROR") {
       console.log("Error trying auto login");
       sessionStorage.removeItem("cp-persuasive-user");
       props.clearUser();
     }
     // login done
-    else if (autoLoginStarted && props.user) setAutoLoginStarted(false);
+    else if (autoLoginStarted && user) setAutoLoginStarted(false);
   }, [props, getCredential(), autoLoginStarted]);
 
   /**
    * Get user like list
    */
   useEffect(() => {
-    if (!props.user || props.user === "ERROR") return;
+    if (!user || user === "ERROR") return;
     props.initFetch();
-    props.getLikeList(props.user.id);
-  }, [props.user]);
+    props.getLikeList(user.id);
+  }, [user]);
 
   /**
    * Fetch data (after likeList was fetched)
    */
   useEffect(() => {
-    if (props.user && props.user !== "ERROR" && props.likeList) {
-      props.fetchData(props.user.id, true);
+    if (user && user !== "ERROR" && likeList) {
+      props.fetchData(user.id, true);
     }
-  }, [props.user, props.likeList]);
+  }, [user, likeList]);
 
   return (
     <React.Fragment>
       <div className="homepage-content">
         {!props.fetchDone ||
-        (getCredential() && !props.user && props.user !== "ERROR") ||
+        (getCredential() && !user && user !== "ERROR") ||
         autoLoginStarted ? (
           <Spinner />
         ) : null}
 
-        {!props.user ? (
+        {!user ? (
           <React.Fragment>
             <div className="homepage-buttons">
               <div className="login-display">
@@ -103,7 +102,7 @@ const HomePage = (props) => {
           </React.Fragment>
         ) : null}
 
-        {props.user && !props.searching ? (
+        {user && !props.searching ? (
           <React.Fragment>
             <div id="recommendation-container">
               <TextDisplay text="Produtos" headingType="h5" />
