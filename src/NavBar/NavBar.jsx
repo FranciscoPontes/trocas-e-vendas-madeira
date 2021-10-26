@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from "react";
 import "./NavBar.css";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import TextDisplay from "../UI/TextDisplay";
 import { logout } from "../ReduxStore/reducer";
@@ -10,9 +10,27 @@ import MenuIcon from "@material-ui/icons/Menu";
 import CustomButton from "../UI/Button";
 import { routePaths } from "../App";
 import { withRouter } from "react-router";
+import { withLoginDone } from "../HOC/withLoginDone";
+
+const LeftBarToggler = () => {
+  const dispatch = useDispatch();
+
+  return (
+    <div
+      onClick={() => dispatch({ type: TOGGLE_LEFT_PANEL })}
+      style={{
+        cursor: "pointer",
+        height: "fit-content",
+      }}
+    >
+      <MenuIcon fontSize="large" />
+    </div>
+  );
+};
+
+const Toggler = withLoginDone(LeftBarToggler);
 
 const NavBar = (props) => {
-  const dispatch = useDispatch();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const logout = (value) => {
@@ -29,15 +47,7 @@ const NavBar = (props) => {
         title="Terminar sessão?"
       />
       <div className="navbar">
-        <div
-          onClick={() => dispatch({ type: TOGGLE_LEFT_PANEL })}
-          style={{
-            cursor: "pointer",
-            height: "fit-content",
-          }}
-        >
-          <MenuIcon fontSize="large" />
-        </div>
+        <Toggler />
         <TextDisplay
           text="Vendas Madeira"
           headingType="h5"

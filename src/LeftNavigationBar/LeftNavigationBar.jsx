@@ -19,6 +19,9 @@ import { routePaths } from "../App";
 import { logout } from "../ReduxStore/reducer";
 import Chip from "@material-ui/core/Chip";
 import Avatar from "@material-ui/core/Avatar";
+import { withLoginDone } from "../HOC/withLoginDone";
+import { withErrorBoundary } from "react-error-boundary";
+import { ErrorBoundaryFallback } from "../UI/ErrorBoundaryFallback";
 
 const LeftNavigationBar = (props) => {
   const useStyles = makeStyles({
@@ -102,4 +105,6 @@ const LeftNavigationBar = (props) => {
   );
 };
 
-export default withRouter(LeftNavigationBar);
+export default withErrorBoundary(withLoginDone(LeftNavigationBar), {
+  FallbackComponent: ErrorBoundaryFallback,
+});

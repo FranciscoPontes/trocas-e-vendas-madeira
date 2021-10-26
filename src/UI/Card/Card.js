@@ -28,32 +28,31 @@ const useStyles = makeStyles((theme) => ({
     transform: "rotate(0deg)",
     marginLeft: "auto",
     // transition: theme.transitions.create('transform', {
-      //   duration: theme.transitions.duration.shortest,
-      // }),
-    },
-    expandOpen: {
-      transform: "rotate(180deg)",
-    },
-  }));
-  
-  const RecipeReviewCard = (props) => {
+    //   duration: theme.transitions.duration.shortest,
+    // }),
+  },
+  expandOpen: {
+    transform: "rotate(180deg)",
+  },
+}));
 
-    const userLikes = useSelector(state => state.userLikes)
-    const loggedUserId = useSelector(state => state.loggedUserId)
+const RecipeReviewCard = (props) => {
+  const userLikes = useSelector((state) => state.userLikes);
+  const loggedUserId = useSelector((state) => state.loggedUserId);
 
-    const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-    const updateLikeCount = (uId, docId, data, likeList) => {
-      dispatch(ReducerAPI.updateLikeCount(uId, docId, data, likeList))
-    }
+  const updateLikeCount = (uId, docId, data, likeList) => {
+    dispatch(ReducerAPI.updateLikeCount(uId, docId, data, likeList));
+  };
 
-    const classes = useStyles();
-    const [expanded, setExpanded] = useState(false);
-    
-    const handleExpandClick = () => {
-      setExpanded(!expanded);
-    };
-    
+  const classes = useStyles();
+  const [expanded, setExpanded] = useState(false);
+
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
+
   const callIcon = () => <CallIcon />;
   const mailIcon = () => <MailIcon />;
 
@@ -74,8 +73,7 @@ const useStyles = makeStyles((theme) => ({
   );
 
   const [wasAlreadyLiked] = useState(
-    userLikes.likeList &&
-      userLikes.likeList.includes("" + props.value + "")
+    userLikes.likeList && userLikes.likeList.includes("" + props.value + "")
   );
 
   const cardLikeRef = useRef();
@@ -92,8 +90,7 @@ const useStyles = makeStyles((theme) => ({
       return size;
     };
     let result;
-    if (Object.size(userLikes) > 0)
-      result = JSON.parse(userLikes.likeList);
+    if (Object.size(userLikes) > 0) result = JSON.parse(userLikes.likeList);
     else result = [];
     return result;
   };
@@ -131,18 +128,13 @@ const useStyles = makeStyles((theme) => ({
     } else result = [props.value];
     let actualLikeList = {};
     actualLikeList["likeList"] = JSON.stringify(result);
-    
-    updateLikeCount(
-      loggedUserId,
-      props.value,
-      docData,
-      actualLikeList
-    );
+
+    updateLikeCount(loggedUserId, props.value, docData, actualLikeList);
   };
 
-  useEffect(() => {
-    throw new Error('testing error boundary')
-  }, [])
+  // useEffect(() => {
+  //   throw new Error('testing error boundary')
+  // }, [])
 
   return (
     <Card
@@ -224,7 +216,6 @@ const useStyles = makeStyles((theme) => ({
     </Card>
   );
 };
-
 
 export default withErrorBoundary(RecipeReviewCard, {
   FallbackComponent: ErrorBoundaryFallback,
