@@ -105,6 +105,6 @@ const LeftNavigationBar = (props) => {
   );
 };
 
-export default withErrorBoundary(withLoginDone(LeftNavigationBar), {
+export default withErrorBoundary(withLoginDone(withRouter(LeftNavigationBar)), {
   FallbackComponent: ErrorBoundaryFallback,
 });

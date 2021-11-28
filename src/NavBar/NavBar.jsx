@@ -21,6 +21,7 @@ const LeftBarToggler = () => {
       style={{
         cursor: "pointer",
         height: "fit-content",
+        marginLeft: "10px",
       }}
     >
       <MenuIcon fontSize="large" />
